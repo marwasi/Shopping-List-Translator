@@ -1305,6 +1305,7 @@
         const payload = {
             exportedAt:      new Date().toISOString(),
             pairId:          activePairId,
+            categories:      document.getElementById('settingsCategories').value.trim(),
             activeList:      activeSnap.docs.map(d => ({ id: d.id, ...d.data() })),
             savedRecallList: savedSnap.docs.map(d => ({ id: d.id, ...d.data() }))
         };
@@ -1354,6 +1355,13 @@
         try {
             const payload = JSON.parse(text);
             const batch   = db.batch();
+
+            // Restore custom categories if present in data package
+            if (payload.categories) {
+                document.getElementById('settingsCategories').value = payload.categories;
+                updateSettings();
+                updateFilterBar();
+            }
 
             if (payload.activeList) {
                 const existing = await col('activeList').get();
