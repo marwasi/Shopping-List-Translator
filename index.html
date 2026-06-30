@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>shopper1</title>
+    <title>Shopping Translator</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
-        /* === FIELD-TESTED HIGH-CONTRAST PALETTES === */
         :root, .nordic-frost {
             --bg: #1e222a; --card: #282c34; --col: #3e4451;
             --text-muted: #abb2bf; --text: #ffffff; --accent: #61afef;
@@ -37,37 +37,36 @@
             --shadow-sep: rgba(26, 11, 46, 0.9);
         }
 
-        /* === BASE === */
         body { background: var(--bg); color: var(--text); font-family: sans-serif; transition: background 0.2s, color 0.2s; padding: 20px; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; font-size: 20px; vertical-align: middle; line-height: 1; }
 
-        /* === HEADER === */
-        .header-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; position: relative; }
-        .header-top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .header-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; position: relative; }
+        .header-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .header-title-block { min-width: 0; flex-shrink: 1; }
         .header-right-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .clock { font-size: 13px; font-weight: bold; opacity: 0.75; font-family: monospace; letter-spacing: 0.5px; }
-        .header-actions-row { display: flex; align-items: center; gap: 14px; }
-        .main-toggle-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text); padding: 2px; margin: 0; }
-        .kebab-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text); padding: 2px; margin: 0; }
+        .header-actions-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+        .main-toggle-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text); padding: 2px; margin: 0; display: inline-flex; align-items: center; }
+        .kebab-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text); padding: 2px; margin: 0; display: inline-flex; align-items: center; flex-shrink: 0; }
         .header-title-block h2 { margin: 0; font-size: 24px; color: var(--accent); }
         .current-user-display { font-size: 14px; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
         .pair-code-display { font-size: 11px; opacity: 0.55; margin-top: 2px; font-family: monospace; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
         .pair-code-copy-btn { background: none; border: 1px solid var(--col); color: var(--text-muted); font-size: 10px; padding: 1px 5px; border-radius: 3px; cursor: pointer; }
 
-        /* === DROPDOWN SETTINGS === */
-        .dropdown-menu { display: none; position: absolute; right: 0; top: 75px; background: var(--card); border: 1px solid var(--col); padding: 12px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 100; min-width: 210px; }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 38px; background: var(--card); border: 1px solid var(--col); padding: 12px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 500; min-width: 210px; }
         .dropdown-menu label { display: block; margin-bottom: 10px; font-size: 14px; font-weight: bold; color: var(--accent); }
         .dropdown-menu select { width: 100%; margin-top: 4px; padding: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--col); border-radius: 4px; }
         .submenu-container { border: 1px solid var(--col); border-radius: 6px; padding: 8px; margin-top: 8px; background: rgba(0,0,0,0.15); }
         .submenu-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; margin-bottom: 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .reset-profile-btn { width: 100%; font-size: 12px; font-weight: bold; background: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; margin-top: 8px; }
         .settings-input { width: 100%; margin-top: 4px; padding: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--col); border-radius: 4px; box-sizing: border-box; }
+        .dropdown-action-btn { width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text); padding: 9px 4px; font-size: 13px; cursor: pointer; text-align: left; border-radius: 4px; }
+        .dropdown-action-btn:active { background: rgba(255,255,255,0.06); }
 
-        /* === DATA GRID === */
-        .grid-header { display: flex; font-weight: bold; padding: 10px; border-bottom: 2px solid var(--col); font-size: 14px; opacity: 0.8; color: var(--accent); }
+        /* Fixed: z-index added to keep dropdown menu above lists items */
+        .grid-header { display: flex; align-items: center; font-weight: bold; padding: 10px; border-bottom: 2px solid var(--col); font-size: 14px; opacity: 0.8; color: var(--accent); position: relative; z-index: 100; }
         .h-item { flex: 1; width: 50%; }
         .h-trans { flex: 1; width: 50%; padding-left: 12px; }
 
-        /* === SWIPE ROW LAYOUT === */
         .swipe-wrapper { position: relative; width: 100%; overflow: hidden; border-bottom: 1px solid var(--col); background: var(--bg); }
         .swipe-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 1; pointer-events: auto; box-sizing: border-box; }
         .swipe-bg-left { background: #d4af37; height: 100%; width: 50%; display: flex; align-items: center; padding-left: 20px; box-sizing: border-box; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
@@ -76,20 +75,16 @@
         .col-item { flex: 1; width: 50%; word-break: break-word; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; }
         .col-trans { flex: 1; width: 50%; word-break: break-word; padding-left: 12px; border-left: 1px solid var(--col); display: flex; flex-direction: column; justify-content: center; }
 
-        /* === UNDO TRAY === */
         .undo-tray { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #dc3545; color: white; font-weight: bold; font-size: 14px; border-bottom: 1px solid var(--col); animation: fadeIn 0.2s ease-in-out; }
         .undo-btn { background: white; color: #dc3545; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* === SCRATCH-THROUGH === */
         .scratch-through { position: relative; color: var(--text-muted) !important; opacity: 0.6; }
         .scratch-through::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; height: 6px; transform: translateY(-50%); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 4" width="20" height="4" preserveAspectRatio="none"><path d="M0,2 Q3,0 6,2 T12,2 T18,2 T20,2" fill="none" stroke="%23dc3545" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'); background-repeat: repeat-x; background-size: 20px 100%; pointer-events: none; }
 
-        /* === UTILITIES === */
         .row-input { width: 100%; padding: 7px; border: 1px solid var(--col); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 15px; box-sizing: border-box; }
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: var(--bg); border: none; font-size: 32px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 99; }
 
-        /* === MODALS === */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card); color: var(--text); padding: 20px; border-radius: 12px; width: 85%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid var(--col); }
@@ -100,7 +95,6 @@
         .emoji-option { font-size: 24px; background: none; border: 1px solid var(--col); padding: 8px; border-radius: 8px; cursor: pointer; text-align: center; }
         .emoji-option.selected { border-color: var(--accent); background: rgba(255,255,255,0.05); }
 
-        /* === MODAL SWIPE ROWS === */
         .modal-swipe-row { position: relative; overflow: hidden; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px; }
         .swipe-delete-bg { position: absolute; top: 0; right: 0; bottom: 0; width: 80px; background: #dc3545; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
         .swipe-content { position: relative; z-index: 2; background: var(--card); display: flex; align-items: center; padding: 8px; transition: transform 0.2s; touch-action: pan-y; }
@@ -111,7 +105,6 @@
 </head>
 <body class="nordic-frost">
 
-    <!-- ═══════════════════════════════════════════════ HEADER ══ -->
     <div class="header-container">
         <div class="header-top-row">
             <div class="header-title-block">
@@ -123,18 +116,15 @@
                 </div>
             </div>
             <div class="header-right-stack">
-                <div id="appClock" class="clock">00:00:00</div>
                 <div class="header-actions-row">
-                    <button class="main-toggle-btn" onclick="clearEntireActiveList()" title="Clear List">🗑️</button>
-                    <button class="main-toggle-btn" onclick="cycleThemeCollection()" title="Cycle Themes">☀️</button>
-                    <button class="main-toggle-btn" id="catToggleBtn" onclick="toggleCategoryView()" title="Toggle Categories">🗂️</button>
-                    <button class="main-toggle-btn" onclick="openSavedModal()">📁</button>
+                    <button class="main-toggle-btn" onclick="cycleThemeCollection()" title="Cycle Themes">
+                        <span class="material-symbols-outlined" id="themeIconGlyph">light_mode</span>
+                    </button>
                     <button class="kebab-btn" onclick="toggleDropdown()">⋮</button>
                 </div>
             </div>
         </div>
 
-        <!-- ══ SETTINGS DROPDOWN ══ -->
         <div id="settingsDropdown" class="dropdown-menu">
             <label>Theme Color
                 <select id="themeSelect" onchange="updateSettings()">
@@ -147,10 +137,11 @@
                 </select>
             </label>
 
-            <label style="margin-top:10px; display:block;">List Categories (CSV)
-                <input type="text" id="settingsCategories"
-                       onchange="updateSettings(); updateFilterBar(); renderList();"
-                       placeholder="Produce, Meat, Dairy, Pantry, General" class="settings-input">
+            <label style="margin-top:10px; display:block;">List Categories
+                <input type="text" id="settingsCategories" readonly
+                       onclick="openCategoryModal()"
+                       placeholder="Produce, Meat, Dairy, Pantry, General" class="settings-input" 
+                       style="cursor:pointer; caret-color:transparent;">
             </label>
 
             <div class="submenu-container">
@@ -169,7 +160,6 @@
                 </label>
             </div>
 
-            <!-- Pair code switcher -->
             <div class="submenu-container" style="margin-top:8px;">
                 <div class="submenu-title"><span>Pair Code</span> 🔗</div>
                 <div style="font-size:11px; opacity:0.7; margin-bottom:6px;">Share your code with a partner, or enter theirs to join.</div>
@@ -185,23 +175,79 @@
                 <button onclick="exportData()" style="flex:1; font-size:12px; font-weight:bold; background:var(--accent); color:var(--bg); border:none; padding:8px; border-radius:4px; cursor:pointer;">⬆️ Export</button>
                 <button onclick="openImportModal()" style="flex:1; font-size:12px; font-weight:bold; background:var(--col); color:var(--text); border:none; padding:8px; border-radius:4px; cursor:pointer;">⬇️ Import</button>
             </div>
+            <button onclick="openPairsManagerModal()" style="width:100%; margin-top:8px; font-size:12px; font-weight:bold; background:var(--col); color:var(--text); border:none; padding:9px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                🔗 View All Active Pairs
+            </button>
             <button class="reset-profile-btn" onclick="deleteAndResetUser()">🗑️ Reset My Profile</button>
         </div>
     </div>
 
-    <!-- ══ FILTER BAR ══ -->
+    <div id="pairsManagerModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:340px;">
+            <div class="modal-header">
+                <h3>Available Pairs</h3>
+                <span style="cursor:pointer; font-size:20px;" onclick="closePairsManagerModal()">×</span>
+            </div>
+            <p style="font-size:12px; opacity:0.7; margin-top:-5px; margin-bottom:12px;">Select an existing pair to switch into its real-time list:</p>
+            <div id="pairsModalList" style="display:flex; flex-direction:column; gap:8px; max-height:45vh; overflow-y:auto; padding-right:4px;">
+                </div>
+            <button class="modal-close-btn" style="background:var(--col); color:var(--text);" onclick="closePairsManagerModal()">Close</button>
+        </div>
+    </div>
+
     <div id="filterBar" style="display:flex; gap:8px; padding:10px; overflow-x:auto; background:var(--bg);">
         <button class="chip" onclick="setFilter('All', this)" style="padding:6px 12px; border-radius:20px; border:none; cursor:pointer; background:var(--accent); color:var(--bg);">All</button>
     </div>
+
     <div class="grid-header">
         <div id="header-col1" class="h-item">Item (Qty)</div>
         <div id="header-col2" class="h-trans">Translation</div>
+        <button class="kebab-btn" onclick="toggleActionsDropdown()" style="margin-left:6px;">⋮</button>
+        <div id="actionsDropdown" class="dropdown-menu" style="min-width: 180px;">
+            <button class="dropdown-action-btn" onclick="clearEntireActiveList(); toggleActionsDropdown();">
+                🗑️ Delete All
+            </button>
+            <button class="dropdown-action-btn" onclick="restoreLastCleared(); toggleActionsDropdown();">
+                ↩️ Restore Deleted
+            </button>
+            <button class="dropdown-action-btn" onclick="deleteLocalCompletedRows(); toggleActionsDropdown();">
+                🧹 Delete Completed
+            </button>
+            <button class="dropdown-action-btn" onclick="restoreAllCompleted(); toggleActionsDropdown();">
+                ✔️ Restore Completed
+            </button>
+            <hr style="border:0; border-top:1px solid var(--col); margin:6px 0;">
+            <button class="dropdown-action-btn" onclick="toggleCategoryView(); toggleActionsDropdown();">
+                🗂️ <span id="catToggleTopLabel">Hide</span> Category
+            </button>
+            <button class="dropdown-action-btn" onclick="openSavedModal(); toggleActionsDropdown();">
+                ⭐ Favorites
+            </button>
+        </div>
     </div>
 
     <div id="itemList"></div>
     <button class="fab" onclick="createNewBlankRow()">+</button>
 
-    <!-- ══ PROFILE MODAL ══ -->
+    <div id="categoryManagerModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:340px;">
+            <div class="modal-header">
+                <h3>Manage Categories</h3>
+                <span style="cursor:pointer; font-size:20px;" onclick="closeCategoryModal()">×</span>
+            </div>
+            
+            <div style="display:flex; gap:6px; margin-bottom:15px;">
+                <input type="text" id="newCategoryInput" class="row-input" placeholder="New category name..." style="flex:1;">
+                <button onclick="addNewCategoryRow()" style="background:var(--accent); color:var(--bg); border:none; padding:0 14px; border-radius:4px; font-weight:bold; cursor:pointer;">Add</button>
+            </div>
+
+            <div id="categoryModalList" style="display:flex; flex-direction:column; gap:8px; max-height:40vh; overflow-y:auto; margin-bottom:15px; padding-right:4px;">
+                </div>
+
+            <button class="modal-close-btn" onclick="saveCategoryModalChanges()">Save Categories</button>
+        </div>
+    </div>
+
     <div id="profileModal" class="modal-overlay">
         <div class="modal-content" style="max-width:340px;">
             <h3 style="text-align:center; margin-top:0; color:var(--accent);">Your Profile</h3>
@@ -214,7 +260,6 @@
         </div>
     </div>
 
-    <!-- ══ SAVED SHORTCUTS MODAL ══ -->
     <div id="savedModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -230,16 +275,14 @@
     </div>
 
     <script>
-    // ═══════════════════════════════════════════════════════════════════
-    // CONSTANTS
-    // ═══════════════════════════════════════════════════════════════════
-    const PROXY_URL       = 'https://apishopperbounce.mawasith.workers.dev';
-    const GROQ_ENDPOINT   = 'https://api.groq.com/openai/v1/chat/completions';
-    const GROQ_MODEL      = 'llama-3.3-70b-versatile';
+    const PROXY_URL   = 'https://apishopperbounce.mawasith.workers.dev';
+    const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+    const GROQ_MODEL  = 'llama-3.3-70b-versatile';
+    const DARK_THEMES = ['monochrome-high', 'midnight-abyss', 'cyber-punk'];
+    const THEMES      = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
+    const AVATAR_OPTIONS = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
+    const DEFAULT_CATEGORIES = 'Produce, Meat, Dairy, Pantry, General';
 
-    // ═══════════════════════════════════════════════════════════════════
-    // FIREBASE INIT
-    // ═══════════════════════════════════════════════════════════════════
     const firebaseConfig = {
         apiKey: "AIzaSyB7lZXJUAvcILuKNXHECcZHxbVJ6OJAKPo",
         authDomain: "shopping-list-translator.firebaseapp.com",
@@ -251,10 +294,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ═══════════════════════════════════════════════════════════════════
-    // TENANCY — PAIR + DEVICE IDENTITY
-    // All Firestore paths route through col() — single source of truth.
-    // ═══════════════════════════════════════════════════════════════════
     function generatePairCode() {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         return Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -275,55 +314,30 @@
     const DEVICE_ID    = ensureDeviceId();
     let   activePairId = ensureActivePairId();
 
-    /** Single-source Firestore collection accessor */
     const col = (name) => db.collection('pairs').doc(activePairId).collection(name);
+    // Global references independent of active tracking pairs
+    const globalUsersRef = db.collection('users');
+    const globalPairsRef = db.collection('pairs');
 
-    // ═══════════════════════════════════════════════════════════════════
-    // v2 PLACEHOLDER — Registration Gate
-    // When registration is implemented this stub becomes the entry point
-    // for verifying pair codes against a registry before granting access.
-    // ═══════════════════════════════════════════════════════════════════
     async function registerPair(pairId) {
-        // v2: registration gate — verify pairId exists in /registry/{pairId}
-        //     and enforce invite/capacity rules before returning true.
-        return true; // currently open: any code creates or joins a pair
+        return true;
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // GLOBAL APPLICATION STATE
-    // ═══════════════════════════════════════════════════════════════════
-    let currentItems       = [];
-    let savedRecallList    = [];
-    let localEditingItems  = [];
-    let localDeletedTimers = {};
-    let processingIds      = new Set();
-    let userProfile        = { name: 'User', icon: '🛒' };
-    let selectedProfileEmoji = '🛒';
-    let currentFilter      = 'All';
-    let categoriesEnabled  = true;
+    let currentItems                 = [];
+    let savedRecallList              = [];
+    let localEditingItems            = [];
+    let localDeletedTimers           = {};
+    let processingIds                = new Set();
+    let userProfile                  = { name: 'User', icon: '🛒' };
+    let selectedProfileEmoji         = '🛒';
+    let currentFilter                = 'All';
+    let categoriesEnabled            = true;
+    let lastClearedSnapshot          = null;
+    let lastDeletedCompletedSnapshot = null; // Added tracking variable
 
-    // Firestore listener handles — torn down on pair switch
     let unsubActiveList = null;
     let unsubSavedList  = null;
 
-    const THEMES           = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
-    const AVATAR_OPTIONS   = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
-    const DEFAULT_CATEGORIES = 'Produce, Meat, Dairy, Pantry, General';
-
-    // ═══════════════════════════════════════════════════════════════════
-    // CLOCK
-    // ═══════════════════════════════════════════════════════════════════
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('appClock').textContent =
-            `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // ═══════════════════════════════════════════════════════════════════
-    // HELPERS
-    // ═══════════════════════════════════════════════════════════════════
     function getParsedCategories() {
         const csv = document.getElementById('settingsCategories').value.trim();
         if (!csv) return DEFAULT_CATEGORIES.split(',').map(c => c.trim());
@@ -347,13 +361,6 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // AI — PROXY WRAPPER
-    // All Groq calls go through the Cloudflare Worker proxy.
-    // The key never touches the client.
-    // ═══════════════════════════════════════════════════════════════════
-
-    /** Low-level proxy call — returns parsed JSON or null on error */
     async function callGroqViaProxy(messages, maxTokens = 10) {
         try {
             const res = await fetch(PROXY_URL, {
@@ -363,10 +370,8 @@
                     service:  'groq',
                     endpoint: GROQ_ENDPOINT,
                     payload: {
-                        model:       GROQ_MODEL,
-                        messages,
-                        temperature: 0.1,
-                        max_tokens:  maxTokens
+                        model: GROQ_MODEL, messages,
+                        temperature: 0.1, max_tokens: maxTokens
                     }
                 })
             });
@@ -378,7 +383,6 @@
         }
     }
 
-    /** Classify a single text string into a configured category */
     async function fetchGroqClassification(text) {
         const categories = getParsedCategories();
         const data = await callGroqViaProxy([
@@ -389,7 +393,6 @@
         return (result && categories.includes(result)) ? result : null;
     }
 
-    /** Classify a doc and update Firestore — returns 1 if updated, 0 if not */
     async function classifyAndUpdate(collectionName, docId, text, categories) {
         const data = await callGroqViaProxy([
             { role: 'system', content: `You are a grocery store organizer. Classify the item into exactly one of these categories: ${categories.join(', ')}. Respond with ONLY the category word, nothing else.` },
@@ -403,7 +406,6 @@
         return 0;
     }
 
-    /** AI sort: re-categorize ALL shortcuts AND active list items */
     async function bulkCategorizeAll(e) {
         const btn      = e.currentTarget;
         const origText = btn.innerHTML;
@@ -418,7 +420,6 @@
                 col('savedRecallList').get(),
                 col('activeList').get()
             ]);
-
             for (const doc of savedSnap.docs) {
                 const text = doc.data().l1 || doc.data().l2;
                 if (text) shortcutCount += await classifyAndUpdate('savedRecallList', doc.id, text, categories);
@@ -427,7 +428,6 @@
                 const text = doc.data().l1 || doc.data().l2;
                 if (text) listCount += await classifyAndUpdate('activeList', doc.id, text, categories);
             }
-
             alert(`AI sorting complete! Updated ${shortcutCount} shortcuts and ${listCount} list items.`);
         } catch (err) {
             console.error('Bulk categorize failed:', err);
@@ -438,17 +438,20 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // SETTINGS
-    // ═══════════════════════════════════════════════════════════════════
     function toggleDropdown() {
         const menu = document.getElementById('settingsDropdown');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleActionsDropdown() {
+        const menu = document.getElementById('actionsDropdown');
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 
     document.addEventListener('click', (e) => {
         if (!e.target.matches('.kebab-btn') && !e.target.closest('.dropdown-menu')) {
             document.getElementById('settingsDropdown').style.display = 'none';
+            document.getElementById('actionsDropdown').style.display  = 'none';
         }
     });
 
@@ -466,28 +469,33 @@
         const next    = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
         document.getElementById('themeSelect').value = next;
         updateSettings();
+        updateThemeIconGlyph(next);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // PAIR SWITCHING
-    // ═══════════════════════════════════════════════════════════════════
+    function updateThemeIconGlyph(theme) {
+        const glyph = document.getElementById('themeIconGlyph');
+        if (glyph) glyph.textContent = DARK_THEMES.includes(theme) ? 'dark_mode' : 'light_mode';
+    }
+
     async function switchPair() {
         const input = document.getElementById('switchPairInput').value.trim().toUpperCase();
         if (!input || input.length < 3) { alert('Enter a valid pair code.'); return; }
         if (input === activePairId)     { alert('Already on this pair.'); return; }
 
-        const allowed = await registerPair(input); // v2 gate
+        const allowed = await registerPair(input);
         if (!allowed) { alert('Pair not found or access denied.'); return; }
 
         if (unsubActiveList) unsubActiveList();
         if (unsubSavedList)  unsubSavedList();
 
-        currentItems       = [];
-        savedRecallList    = [];
-        localEditingItems  = [];
-        localDeletedTimers = {};
-        openSwipeId        = null;
-        currentFilter      = 'All';
+        currentItems                 = [];
+        savedRecallList              = [];
+        localEditingItems            = [];
+        localDeletedTimers           = {};
+        lastClearedSnapshot          = null;
+        lastDeletedCompletedSnapshot = null;
+        openSwipeId                  = null;
+        currentFilter                = 'All';
 
         activePairId = input;
         localStorage.setItem('activePairId', activePairId);
@@ -497,27 +505,25 @@
 
         attachFirestoreListeners();
         await checkUserProfile();
-
         alert(`Switched to pair ${activePairId}`);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // PROFILE — localStorage first, Firestore fallback, picker last
-    // ═══════════════════════════════════════════════════════════════════
     async function checkUserProfile() {
+        // Explicitly touch and register the current pair reference metadata so it shows up in "All Pairs"
+        globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+
         const cached = localStorage.getItem('userProfile');
         if (cached) {
             const parsed = JSON.parse(cached);
             if (parsed.name && parsed.name !== 'User') {
                 userProfile = parsed;
                 updateHeaderProfileDisplay();
-                col('users').doc(DEVICE_ID).set(userProfile, { merge: true });
+                globalUsersRef.doc(DEVICE_ID).set(userProfile, { merge: true });
                 return;
             }
         }
-
         try {
-            const snap = await col('users').doc(DEVICE_ID).get();
+            const snap = await globalUsersRef.doc(DEVICE_ID).get();
             if (snap.exists) {
                 userProfile = snap.data();
                 localStorage.setItem('userProfile', JSON.stringify(userProfile));
@@ -525,10 +531,108 @@
                 return;
             }
         } catch (e) {
-            console.warn('Profile Firestore lookup failed:', e);
+            console.warn('Global profile lookups uninitialized:', e);
+        }
+        openProfileModal('Welcome! Set up your profile to get started.');
+    }
+
+    let modalCategoryState = []; // Tracks internal modal modifications [{name: 'Produce', active: true}]
+
+    function openCategoryModal() {
+        const rawCSV = document.getElementById('settingsCategories').value.trim() || DEFAULT_CATEGORIES;
+        const currentActiveList = rawCSV.split(',').map(c => c.trim()).filter(Boolean);
+        
+        // Keep a running record of everything ever seen or stored locally
+        let savedPool = localStorage.getItem('masterCategoryPool');
+        let masterPool = savedPool ? JSON.parse(savedPool) : DEFAULT_CATEGORIES.split(',').map(c => c.trim());
+        
+        // Merge in case anything new sneaked into active CSV list
+        currentActiveList.forEach(c => { if(!masterPool.includes(c)) masterPool.push(c); });
+        localStorage.setItem('masterCategoryPool', JSON.stringify(masterPool));
+
+        // Build working states
+        modalCategoryState = masterPool.map(name => ({
+            name,
+            active: currentActiveList.includes(name)
+        }));
+
+        renderCategoryModalRows();
+        document.getElementById('categoryManagerModal').classList.add('active');
+    }
+
+    function renderCategoryModalRows() {
+        const container = document.getElementById('categoryModalList');
+        if (!container) return;
+
+        container.innerHTML = modalCategoryState.map((cat, idx) => `
+            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px; border-radius:6px; border:1px solid var(--col);">
+                <label style="display:flex; align-items:center; gap:10px; margin:0; cursor:pointer; flex:1; min-width:0;">
+                    <input type="checkbox" ${cat.active ? 'checked' : ''} 
+                           onchange="modalCategoryState[${idx}].active = this.checked"
+                           style="transform:scale(1.15); margin:0; cursor:pointer;">
+                    <span style="font-size:14px; font-weight:bold; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${cat.active ? '' : 'opacity:0.4; text-decoration:line-through;'}">${cat.name}</span>
+                </label>
+                <button onclick="removeCategoryFromModal(${idx})" 
+                        style="background:none; border:none; color:#dc3545; font-weight:bold; font-size:16px; cursor:pointer; padding:0 6px;">×</button>
+            </div>
+        `).join('');
+    }
+
+    function addNewCategoryRow() {
+        const input = document.getElementById('newCategoryInput');
+        const name = input.value.trim();
+        if (!name) return;
+        
+        // Format text nicely (Capitalized word string context)
+        const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+
+        // Avoid exact duplicated sets
+        if (modalCategoryState.some(c => c.name.toLowerCase() === formattedName.toLowerCase())) {
+            alert('Category already exists.');
+            return;
         }
 
-        openProfileModal('Welcome! Set up your profile to get started.');
+        modalCategoryState.push({ name: formattedName, active: true });
+        input.value = '';
+        renderCategoryModalRows();
+        
+        // Auto-scroll to bottom of list to see newly appended entry
+        const container = document.getElementById('categoryModalList');
+        setTimeout(() => container.scrollTop = container.scrollHeight, 50);
+    }
+
+    function removeCategoryFromModal(index) {
+        modalCategoryState.splice(index, 1);
+        renderCategoryModalRows();
+    }
+
+    function closeCategoryModal() {
+        document.getElementById('categoryManagerModal').classList.remove('active');
+    }
+
+    function saveCategoryModalChanges() {
+        // Collect only checking items
+        const activeNames = modalCategoryState.filter(c => c.active).map(c => c.name);
+        
+        if (activeNames.length === 0) {
+            alert('Please keep at least one category activated.');
+            return;
+        }
+
+        // Build the back-referenced master list pool mapping
+        const totalPoolNames = modalCategoryState.map(c => c.name);
+        localStorage.setItem('masterCategoryPool', JSON.stringify(totalPoolNames));
+
+        // Package down to explicit format CSV text string
+        const updatedCSV = activeNames.join(', ');
+        document.getElementById('settingsCategories').value = updatedCSV;
+
+        // Propagate down UI hierarchy chain
+        updateSettings();
+        updateFilterBar();
+        renderList();
+        
+        closeCategoryModal();
     }
 
     function openProfileModal(subtext = '') {
@@ -553,32 +657,24 @@
         const name = document.getElementById('profileNameInput').value.trim();
         if (!name) { alert('Please enter a name!'); return; }
         userProfile = { name, icon: selectedProfileEmoji };
-
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
-        try {
-            await col('users').doc(DEVICE_ID).set(userProfile);
-        } catch (e) {
-            console.warn('Profile save to Firestore failed:', e);
-        }
-
+        try { await globalUsersRef.doc(DEVICE_ID).set(userProfile); }
+        catch (e) { console.warn('Global profile save failed:', e); }
         updateHeaderProfileDisplay();
         document.getElementById('profileModal').classList.remove('active');
         renderList();
     }
 
     function deleteAndResetUser() {
-        if (!confirm('Reset your profile for this pair?')) return;
+        if (!confirm('Reset your profile completely across all devices?')) return;
         localStorage.removeItem('userProfile');
         userProfile = { name: 'User', icon: '🛒' };
-        col('users').doc(DEVICE_ID).delete().catch(() => {});
+        globalUsersRef.doc(DEVICE_ID).delete().catch(() => {});
         updateHeaderProfileDisplay();
         document.getElementById('settingsDropdown').style.display = 'none';
         openProfileModal('Profile cleared. Please set up again.');
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // SWIPE GESTURE ENGINE (main list)
-    // ═══════════════════════════════════════════════════════════════════
     let touchStartX = 0, touchStartY = 0;
     let activeSwipeRowId = null;
     let isSwiping = false, isScrolling = false;
@@ -664,22 +760,16 @@
         activeSwipeRowId = null; isSwiping = false; isScrolling = false;
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // MODAL SWIPE (Saved Shortcuts) — closure-based, no globals
-    // ═══════════════════════════════════════════════════════════════════
     function attachModalSwipe(el) {
         let startX = 0, swiped = false;
         el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
         el.addEventListener('touchend', e => {
             const delta = e.changedTouches[0].clientX - startX;
-            if (delta < -50)            { el.style.transform = 'translateX(-80px)'; swiped = true; }
+            if (delta < -50)               { el.style.transform = 'translateX(-80px)'; swiped = true; }
             else if (delta > 20 && swiped) { el.style.transform = 'translateX(0px)';  swiped = false; }
         }, { passive: true });
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // SHORTCUTS MODAL
-    // ═══════════════════════════════════════════════════════════════════
     function updateSavedRecallCategory(id, newCategory) {
         col('savedRecallList').doc(id).update({ category: newCategory });
     }
@@ -717,16 +807,14 @@
     }
 
     function renderModalItems() {
-        const container  = document.getElementById('modalItemsContainer');
+        const container = document.getElementById('modalItemsContainer');
         if (savedRecallList.length === 0) {
             container.innerHTML = '<p style="text-align:center; opacity:0.5;">No saved shortcuts yet.</p>';
             return;
         }
-
         const categories = getParsedCategories();
-        const groups     = Object.fromEntries(categories.map(c => [c, []]));
+        const groups = Object.fromEntries(categories.map(c => [c, []]));
         if (!groups['General']) groups['General'] = [];
-
         savedRecallList.forEach(item => {
             const cat = item.category || 'General';
             (groups[cat] ?? groups['General']).push(item);
@@ -739,7 +827,6 @@
                         <span style="font-weight:bold; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:0.5px;">📦 ${catKey}</span>
                      </div>
                      <div style="display:flex; flex-direction:column; gap:4px;">`;
-
             items.forEach(item => {
                 const opts = categories.map(c =>
                     `<option value="${c}" ${item.category === c ? 'selected' : ''}>${c}</option>`
@@ -762,23 +849,16 @@
             });
             html += '</div>';
         });
-
         container.innerHTML = html;
         container.querySelectorAll('[data-swipe-id]').forEach(el => attachModalSwipe(el));
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // SWIPE ACTIONS
-    // ═══════════════════════════════════════════════════════════════════
     function swipeAction(id, action) {
         closeSwipeRow(id);
         if (action === 'save')   toggleSaveRecallState(id);
         if (action === 'delete') initiateDeleteWithUndoSafety(id);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // UNDO DELETE BUFFER (5s)
-    // ═══════════════════════════════════════════════════════════════════
     function initiateDeleteWithUndoSafety(id) {
         if (String(id).startsWith('local-')) {
             localEditingItems = localEditingItems.filter(i => i.id !== id);
@@ -817,9 +897,132 @@
         col('activeList').doc(id).delete().then(() => renderList());
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // DATA INTERACTION
-    // ═══════════════════════════════════════════════════════════════════
+    function clearEntireActiveList() {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay active';
+        overlay.style.zIndex = '9999';
+        overlay.innerHTML = `
+            <div class="modal-content" style="max-width:320px; text-align:center;">
+                <h3 style="margin-top:0; color:var(--accent);">Delete All Items?</h3>
+                <p style="font-size:14px; opacity:0.8;">This removes every item from the active shopping list. You can restore them from the menu afterward.</p>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button id="cancelClearBtn" style="flex:1; background:var(--col); color:var(--text); border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold;">Cancel</button>
+                    <button id="confirmClearBtn" style="flex:1; background:#dc3545; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold;">Delete All</button>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+
+        overlay.querySelector('#cancelClearBtn').onclick = () => overlay.remove();
+        overlay.querySelector('#confirmClearBtn').onclick = async () => {
+            overlay.remove();
+            try {
+                const snap = await col('activeList').get();
+                lastClearedSnapshot = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const batch = db.batch();
+                snap.docs.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                openSwipeId = null;
+            } catch (err) {
+                console.error('Clear list failed:', err);
+                alert('Failed to clear list.');
+            }
+        };
+    }
+
+    async function restoreLastCleared() {
+        if (!lastClearedSnapshot || lastClearedSnapshot.length === 0) {
+            alert('Nothing to restore.');
+            return;
+        }
+        const batch = db.batch();
+        lastClearedSnapshot.forEach(({ id, ...data }) => {
+            batch.set(col('activeList').doc(id), data);
+        });
+        await batch.commit();
+        lastClearedSnapshot = null;
+        alert('Restored deleted items.');
+    }
+
+    // Fixed: Handles unchecking active rows OR resurrecting batch-deleted rows cleanly
+    async function restoreAllCompleted() {
+        const checkedItems = currentItems.filter(i => i.checked);
+        
+        // Case 1: Items are currently completed on screen -> Uncheck them
+        if (checkedItems.length > 0) {
+            const batch = db.batch();
+            checkedItems.forEach(item => {
+                batch.update(col('activeList').doc(item.id), { checked: false });
+            });
+            await batch.commit();
+            return;
+        }
+        
+        // Case 2: No active checked items, but we have deleted completed items to resurrect
+        if (lastDeletedCompletedSnapshot && lastDeletedCompletedSnapshot.length > 0) {
+            const batch = db.batch();
+            lastDeletedCompletedSnapshot.forEach(({ id, ...data }) => {
+                // Return them back to the active list maintaining their checked status
+                batch.set(col('activeList').doc(id), { ...data, checked: true });
+            });
+            await batch.commit();
+            lastDeletedCompletedSnapshot = null; // Clear backup after restoration
+            return;
+        }
+
+        
+        alert('No completed items to restore.');
+    }
+
+    // New Function: Handles permanent bulk removal of completed entries with instant safety net tracking
+    async function deleteLocalCompletedRows() {
+        const completedItems = currentItems.filter(i => i.checked);
+        if (completedItems.length === 0) {
+            alert('No completed items to delete.');
+            return;
+        }
+        if (!confirm(`Delete all ${completedItems.length} completed items?`)) return;
+        
+        // Retain a local snapshot before database deletion so Restore can pick it up
+        lastDeletedCompletedSnapshot = completedItems.map(item => ({ ...item }));
+
+        const batch = db.batch();
+        completedItems.forEach(item => {
+            batch.delete(col('activeList').doc(item.id));
+        });
+        await batch.commit();
+        openSwipeId = null;
+    }
+
+    function askUserForCategory(l1, l2, qty, addedBy, addedIcon) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay active';
+            overlay.style.zIndex = '9999';
+            const cats = getParsedCategories();
+            overlay.innerHTML = `
+                <div class="modal-content" style="max-width:320px; text-align:center;">
+                    <h3 style="margin-top:0; color:var(--accent);">Categorize Item</h3>
+                    <p style="font-weight:bold; font-size:16px; margin-bottom:20px;">"${l1}"</p>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        ${cats.map(c => `<button class="modal-close-btn" style="margin:0; background:var(--col);" data-cat="${c}">📦 ${c}</button>`).join('')}
+                    </div>
+                </div>`;
+            overlay.addEventListener('click', function handler(e) {
+                const btn = e.target.closest('[data-cat]');
+                if (!btn) return;
+                overlay.removeEventListener('click', handler);
+                overlay.remove();
+                col('activeList').add({
+                    l1, l2, qty,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    isEditing: false, checked: false, saved: false,
+                    addedBy, addedIcon, category: btn.dataset.cat
+                }).then(() => resolve(btn.dataset.cat));
+            });
+            document.body.appendChild(overlay);
+        });
+    }
+
     function createNewBlankRow() {
         const tempId = 'local-' + Date.now();
         localEditingItems.push({
@@ -858,56 +1061,6 @@
         }
     }
 
-    async function clearEntireActiveList() {
-        if (!confirm('🗑️ Delete ALL items from the shopping list?')) return;
-        try {
-            const snap  = await col('activeList').get();
-            const batch = db.batch();
-            snap.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            openSwipeId = null;
-        } catch (err) {
-            console.error('Clear list failed:', err);
-            alert('Failed to clear list.');
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    // MANUAL CATEGORY PICKER (fallback when AI unavailable)
-    // ═══════════════════════════════════════════════════════════════════
-    function askUserForCategory(l1, l2, qty, addedBy, addedIcon) {
-        return new Promise((resolve) => {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay active';
-            overlay.style.zIndex = '9999';
-            const cats = getParsedCategories();
-            overlay.innerHTML = `
-                <div class="modal-content" style="max-width:320px; text-align:center;">
-                    <h3 style="margin-top:0; color:var(--accent);">Categorize Item</h3>
-                    <p style="font-weight:bold; font-size:16px; margin-bottom:20px;">"${l1}"</p>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        ${cats.map(c => `<button class="modal-close-btn" style="margin:0; background:var(--col);" data-cat="${c}">📦 ${c}</button>`).join('')}
-                    </div>
-                </div>`;
-            overlay.addEventListener('click', function handler(e) {
-                const btn = e.target.closest('[data-cat]');
-                if (!btn) return;
-                overlay.removeEventListener('click', handler);
-                overlay.remove();
-                col('activeList').add({
-                    l1, l2, qty,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    isEditing: false, checked: false, saved: false,
-                    addedBy, addedIcon, category: btn.dataset.cat
-                }).then(() => resolve(btn.dataset.cat));
-            });
-            document.body.appendChild(overlay);
-        });
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    // INPUT SAVE PIPELINE
-    // ═══════════════════════════════════════════════════════════════════
     function saveSplitInputs(id) {
         if (processingIds.has(id)) return;
         const nameInput = document.getElementById(`input-${id}`);
@@ -916,9 +1069,9 @@
 
         processingIds.add(id);
 
-        const rawText  = nameInput.value.trim();
-        const qty      = parseInt(qtyInput.value, 10) || 1;
-        const isLocal  = String(id).startsWith('local-');
+        const rawText   = nameInput.value.trim();
+        const qty       = parseInt(qtyInput.value, 10) || 1;
+        const isLocal   = String(id).startsWith('local-');
         const itemMatch = currentItems.find(i => i.id === id);
 
         const lang1 = document.getElementById('lang1').value;
@@ -940,7 +1093,7 @@
         if (isLocal) {
             const target    = localEditingItems.find(i => i.id === id);
             const addedBy   = target?.addedBy   ?? userProfile.name;
-            const addedIcon = target?.addedIcon  ?? userProfile.icon;
+            const addedIcon = target?.addedIcon ?? userProfile.icon;
 
             fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang1}&tl=${lang2}&dt=t&q=${encodeURIComponent(rawText)}`)
                 .then(r => r.json())
@@ -949,7 +1102,6 @@
                     const db_l1 = lang1 === langA ? rawText : translated;
                     const db_l2 = lang1 === langB ? rawText : translated;
 
-                    // Local keyword lookup first (no API call needed)
                     const LOOKUP = [
                         { cat: 'Produce', keys: ['apple','banana','onion','garlic','lime','lemon','tomato','potato','chili','salad','ผัก','ผลไม้','มะนาว','พริก','กระเทียม','หอม'] },
                         { cat: 'Meat',    keys: ['chicken','pork','beef','fish','shrimp','salmon','steak','bacon','sausage','หมู','ไก่','เนื้อ','ปลา','กุ้ง'] },
@@ -959,7 +1111,6 @@
                     const l1l = db_l1.toLowerCase(), l2l = db_l2.toLowerCase();
                     let cat = LOOKUP.find(g => g.keys.some(k => l1l.includes(k) || l2l.includes(k)))?.cat ?? null;
 
-                    // Proxy AI fallback
                     if (!cat) cat = await fetchGroqClassification(db_l1);
                     if (!cat) cat = 'General';
 
@@ -999,13 +1150,10 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // FILTER
-    // ═══════════════════════════════════════════════════════════════════
     function toggleCategoryView() {
         categoriesEnabled = !categoriesEnabled;
-        document.getElementById('catToggleBtn').style.opacity  = categoriesEnabled ? '1' : '0.4';
-        document.getElementById('filterBar').style.display     = categoriesEnabled ? 'flex' : 'none';
+        document.getElementById('catToggleTopLabel').textContent = categoriesEnabled ? 'Hide' : 'Show';
+        document.getElementById('filterBar').style.display       = categoriesEnabled ? 'flex' : 'none';
         renderList();
     }
 
@@ -1026,13 +1174,10 @@
         bar.innerHTML = html;
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // RENDER LIST
-    // ═══════════════════════════════════════════════════════════════════
     function renderList() {
-        const container    = document.getElementById('itemList');
-        const visibleFromDb = currentItems.filter(i => !localDeletedTimers[i.id]);
-        const allVisible   = [...localEditingItems, ...visibleFromDb];
+        const container     = document.getElementById('itemList');
+        const visibleFromDb  = currentItems.filter(i => !localDeletedTimers[i.id]);
+        const allVisible    = [...localEditingItems, ...visibleFromDb];
 
         const lang1 = document.getElementById('lang1').value;
         const lang2 = document.getElementById('lang2').value;
@@ -1135,10 +1280,6 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // FIRESTORE REAL-TIME LISTENERS
-    // Extracted so they can be torn down and re-attached on pair switch
-    // ═══════════════════════════════════════════════════════════════════
     function attachFirestoreListeners() {
         if (unsubActiveList) unsubActiveList();
         if (unsubSavedList)  unsubSavedList();
@@ -1156,9 +1297,6 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // IMPORT / EXPORT (textarea-based for Android compatibility)
-    // ═══════════════════════════════════════════════════════════════════
     async function exportData() {
         const [activeSnap, savedSnap] = await Promise.all([
             col('activeList').orderBy('timestamp', 'asc').get(),
@@ -1243,9 +1381,6 @@
         document.querySelector('.modal-overlay[style*="9999"]')?.remove();
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // ENGINE BOOT
-    // ═══════════════════════════════════════════════════════════════════
     async function init() {
         updatePairCodeDisplay();
 
@@ -1262,8 +1397,8 @@
         }
         updateSettings();
         updateFilterBar();
+        updateThemeIconGlyph(document.getElementById('themeSelect').value);
 
-        // Clear stale edit locks from prior sessions
         col('activeList').get().then(snap => {
             snap.forEach(doc => {
                 if (doc.data().isEditing) {
@@ -1278,7 +1413,69 @@
         attachFirestoreListeners();
         await checkUserProfile();
     }
+    function openPairsManagerModal() {
+        document.getElementById('settingsDropdown').style.display = 'none';
+        const container = document.getElementById('pairsModalList');
+        container.innerHTML = '<p style="text-align:center; opacity:0.5; font-size:13px;">Loading pairs database...</p>';
+        document.getElementById('pairsManagerModal').classList.add('active');
 
+        globalPairsRef.get().then(snapshot => {
+            if(snapshot.empty) {
+                container.innerHTML = '<p style="text-align:center; opacity:0.5; font-size:13px;">No active registration pairs found.</p>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const id = doc.id;
+                const isCurrent = (id === activePairId);
+                html += `
+                    <div style="display:flex; align-items:center; justify-content:between; padding:10px; background:rgba(255,255,255,0.03); border:1px solid ${isCurrent ? 'var(--accent)' : 'var(--col)'}; border-radius:6px; gap:8px;">
+                        <div style="flex:1; font-family:monospace; font-size:15px; font-weight:bold; letter-spacing:0.5px; color:${isCurrent ? 'var(--accent)' : 'var(--text)'};">
+                            ${id} ${isCurrent ? '<span style="font-size:11px; font-family:sans-serif; opacity:0.6; margin-left:4px;">(Current)</span>' : ''}
+                        </div>
+                        <button onclick="directSwitchPair('${id}')" ${isCurrent ? 'disabled' : ''} 
+                                style="background:${isCurrent ? 'var(--col)' : 'var(--accent)'}; color:var(--bg); border:none; padding:5px 12px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; opacity:${isCurrent ? '0.4' : '1'};">
+                            Join
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }).catch(err => {
+            console.error(err);
+            container.innerHTML = '<p style="text-align:center; color:#dc3545; font-size:12px;">Failed to read registry pairs.</p>';
+        });
+    }
+
+    function closePairsManagerModal() {
+        document.getElementById('pairsManagerModal').classList.remove('active');
+    }
+
+    async function directSwitchPair(targetPairId) {
+        if (unsubActiveList) unsubActiveList();
+        if (unsubSavedList)  unsubSavedList();
+
+        currentItems        = [];
+        savedRecallList     = [];
+        localEditingItems   = [];
+        localDeletedTimers  = {};
+        lastClearedSnapshot = null;
+        openSwipeId         = null;
+        currentFilter       = 'All';
+
+        activePairId = targetPairId;
+        localStorage.setItem('activePairId', activePairId);
+        updatePairCodeDisplay();
+        
+        attachFirestoreListeners();
+        // Register activity metadata against target document inside root collection
+        globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        
+        closePairsManagerModal();
+        renderList();
+    }
+    
     init();
     </script>
 </body>
