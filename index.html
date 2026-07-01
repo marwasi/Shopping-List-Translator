@@ -306,6 +306,13 @@
     }
 
     function ensureActivePairId() {
+        // Check URL param first — bookmarked URL with ?pair=XXXXX always wins
+        const urlParam = new URLSearchParams(window.location.search).get('pair');
+        if (urlParam) {
+            const code = urlParam.toUpperCase().trim();
+            localStorage.setItem('activePairId', code);
+            return code;
+        }
         let pairId = localStorage.getItem('activePairId');
         if (!pairId) { pairId = generatePairCode(); localStorage.setItem('activePairId', pairId); }
         return pairId;
