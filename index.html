@@ -663,6 +663,40 @@
     async function saveProfile() {
         const name = document.getElementById('profileNameInput').value.trim();
         if (!name) { alert('Please enter a name!'); return; }
+
+        // Check if the user entered a 5-character pair code pattern (Letters A-Z, Numbers 2-9)
+        const codePattern = /^[A-Z2-9]{5}$/i;
+        if (codePattern.test(name)) {
+            const targetPairId = name.toUpperCase();
+            if (targetPairId === activePairId) {
+                alert('Already connected to this pair.');
+                return;
+            }
+            if (confirm(`Do you want to switch to the pair code "${targetPairId}" instead of using it as your profile name?`)) {
+                if (unsubActiveList) unsubActiveList();
+                if (unsubSavedList)  unsubSavedList();
+
+                currentItems                 = [];
+                savedRecallList              = [];
+                localEditingItems            = [];
+                localDeletedTimers           = {};
+                lastClearedSnapshot          = null;
+                lastDeletedCompletedSnapshot = null;
+                openSwipeId                  = null;
+                currentFilter                = 'All';
+
+                activePairId = targetPairId;
+                localStorage.setItem('activePairId', activePairId);
+                updatePairCodeDisplay();
+
+                globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+                attachFirestoreListeners();
+                document.getElementById('profileModal').classList.remove('active');
+                alert(`Successfully restored and switched to pair: ${activePairId}`);
+                return;
+            }
+        }
+
         userProfile = { name, icon: selectedProfileEmoji };
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
         try { await globalUsersRef.doc(DEVICE_ID).set(userProfile); }
