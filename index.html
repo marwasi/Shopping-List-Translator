@@ -286,9 +286,12 @@
 
 <!-- ── PROFILE MODAL ── -->
 <div id="profileModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:340px;">
-        <h3 style="text-align:center; margin-top:0; color:var(--accent);">Your Profile</h3>
-        <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:.65; margin-top:-6px; margin-bottom:14px;"></p>
+        <div class="modal-content" style="max-width:340px;">
+            <div style="display:flex; justify-content:flex-end;">
+                <span id="profileModalCloseBtn" style="display:none; cursor:pointer; font-size:22px; opacity:.6;" onclick="document.getElementById('profileModal').classList.remove('active')">×</span>
+            </div>
+            <h3 style="text-align:center; margin-top:0; color:var(--accent);">Your Profile</h3>
+            <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:.65; margin-top:-6px; margin-bottom:14px;"></p>
         <label style="font-size:13px; font-weight:700; display:block; margin-bottom:6px;">Your Name:</label>
         <input type="text" id="profileNameInput" class="row-input" placeholder="Type your name…" style="margin-bottom:14px;">
         <label style="font-size:13px; font-weight:700; display:block;">Choose an Avatar:</label>
@@ -688,10 +691,11 @@ async function checkUserProfile() {
             return;
         }
     } catch(e) { console.warn('Profile lookup failed:', e); }
-    openProfileModal('Welcome! Set up your profile.');
+    // If list already has items this is a returning user — make profile dismissible
+    openProfileModal('Welcome! Set up your profile.', currentItems.length > 0);
 }
 
-function openProfileModal(subtext = '') {
+function openProfileModal(subtext = '', dismissible = false) {
     const grid = document.getElementById('profileEmojiGrid');
     grid.innerHTML = AVATAR_OPTIONS.map(emoji =>
         `<button class="emoji-option ${emoji === selectedProfileEmoji ? 'selected' : ''}"
@@ -699,6 +703,9 @@ function openProfileModal(subtext = '') {
     ).join('');
     document.getElementById('profileNameInput').value = userProfile.name !== 'User' ? userProfile.name : '';
     document.getElementById('profileModalSubtext').textContent = subtext;
+    // Show X to dismiss if dismissible (e.g. list already exists, profile is optional)
+    const closeBtn = document.getElementById('profileModalCloseBtn');
+    if (closeBtn) closeBtn.style.display = dismissible ? 'block' : 'none';
     document.getElementById('profileModal').classList.add('active');
 }
 
