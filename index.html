@@ -146,7 +146,6 @@
 </head>
 <body class="nordic-frost">
 
-<!-- ══════════════════════════════════════════ ONBOARDING SCREEN ══ -->
 <div id="onboardingScreen">
     <div class="onboard-logo">🛒</div>
     <div class="onboard-title">Shopping Translator</div>
@@ -160,7 +159,6 @@
     <div id="onboardError" style="color:#dc3545; font-size:13px; margin-top:8px; min-height:18px;"></div>
 </div>
 
-<!-- ══════════════════════════════════════════════════ HEADER ══ -->
 <div class="header-container">
     <div class="header-top-row">
         <div class="header-title-block">
@@ -168,7 +166,7 @@
             <div id="currentUserDisplay" class="current-user-display">🛒 User</div>
             <div id="pairCodeDisplay" class="pair-code-display">
                 Pair: <span id="pairCodeLabel">——</span>
-                <button class="pair-code-copy-btn" onclick="copyPairCode()">Copy</button>
+                <button class="pair-code-copy-btn" onclick="copyPairCode()">Copy Link</button>
             </div>
         </div>
         <div class="header-right-stack">
@@ -184,7 +182,6 @@
         </div>
     </div>
 
-    <!-- ── SETTINGS DROPDOWN ── -->
     <div id="settingsDropdown" class="dropdown-menu">
         <label>Theme
             <select id="themeSelect" onchange="updateSettings()">
@@ -245,12 +242,10 @@
     </div>
 </div>
 
-<!-- ── FILTER BAR ── -->
 <div id="filterBar">
     <button class="chip" onclick="setFilter('All',this)" style="background:var(--accent); color:var(--bg);">All</button>
 </div>
 
-<!-- ── GRID HEADER + ACTIONS KEBAB ── -->
 <div class="grid-header">
     <div id="header-col1" class="h-item">Item (Qty)</div>
     <div id="header-col2" class="h-trans">Translation</div>
@@ -270,7 +265,6 @@
 <div id="itemList"></div>
 <button class="fab" onclick="createNewBlankRow()">+</button>
 
-<!-- ── CATEGORY MANAGER MODAL ── -->
 <div id="categoryManagerModal" class="modal-overlay">
     <div class="modal-content" style="max-width:340px;">
         <div class="modal-header">
@@ -286,14 +280,23 @@
     </div>
 </div>
 
-<!-- ── PROFILE MODAL ── -->
 <div id="profileModal" class="modal-overlay">
-        <div class="modal-content" style="max-width:340px;">
-            <div style="display:flex; justify-content:flex-end;">
-                <span id="profileModalCloseBtn" style="display:none; cursor:pointer; font-size:22px; opacity:.6;" onclick="document.getElementById('profileModal').classList.remove('active')">×</span>
+    <div class="modal-content" style="max-width:340px;">
+        <div style="display:flex; justify-content:flex-end;">
+            <span id="profileModalCloseBtn" style="display:none; cursor:pointer; font-size:22px; opacity:.6;" onclick="document.getElementById('profileModal').classList.remove('active')">×</span>
+        </div>
+        <h3 style="text-align:center; margin-top:0; color:var(--accent);">Who Is Using This Device?</h3>
+        <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:.65; margin-top:-6px; margin-bottom:14px;"></p>
+        
+        <div id="quickProfileContainer" style="display:none; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <div style="font-size:12px; font-weight:700; opacity:0.6; text-transform:uppercase; letter-spacing:0.5px; text-align:left; margin-bottom:4px;">Select Existing:</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <button class="onboard-btn onboard-btn-secondary" style="margin:0; padding:10px; font-size:14px;" onclick="selectQuickProfile('User A', '🧔')">🧔 User A</button>
+                <button class="onboard-btn onboard-btn-secondary" style="margin:0; padding:10px; font-size:14px;" onclick="selectQuickProfile('User B', '👩')">👩 User B</button>
             </div>
-            <h3 style="text-align:center; margin-top:0; color:var(--accent);">Your Profile</h3>
-            <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:.65; margin-top:-6px; margin-bottom:14px;"></p>
+            <div style="text-align:center; margin: 6px 0; font-size:11px; opacity:0.4;">— or customize below —</div>
+        </div>
+
         <label style="font-size:13px; font-weight:700; display:block; margin-bottom:6px;">Your Name:</label>
         <input type="text" id="profileNameInput" class="row-input" placeholder="Type your name…" style="margin-bottom:14px;">
         <label style="font-size:13px; font-weight:700; display:block;">Choose an Avatar:</label>
@@ -302,7 +305,6 @@
     </div>
 </div>
 
-<!-- ── SAVED SHORTCUTS MODAL ── -->
 <div id="savedModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -317,7 +319,6 @@
     </div>
 </div>
 
-<!-- ── PAIRS MANAGER MODAL ── -->
 <div id="pairsManagerModal" class="modal-overlay">
     <div class="modal-content" style="max-width:340px;">
         <div class="modal-header">
@@ -341,7 +342,7 @@ const DARK_THEMES      = ['monochrome-high','midnight-abyss','cyber-punk'];
 const THEMES           = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
 const AVATAR_OPTIONS   = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
 const DEFAULT_CATEGORIES = 'Produce, Meat, Dairy, Pantry, General';
-const PAIR_CODE_RE     = /^[A-Z0-9]{5}$/;  // valid pair code pattern
+const PAIR_CODE_RE     = /^[A-Z0-9]{5}$/;
 
 // ═══════════════════════════════════════════════════════════════════
 // FIREBASE
@@ -357,17 +358,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Global refs (independent of active pair)
 const globalPairsRef = db.collection('pairs');
 const globalUsersRef = db.collection('users');
 
 // ═══════════════════════════════════════════════════════════════════
 // PAIR / DEVICE IDENTITY
-//
-// Boot priority (highest → lowest):
-//   1. ?pair=XXXXX URL parameter   — bookmarked link
-//   2. localStorage activePairId   — returning session
-//   3. Onboarding screen           — new session, no auto-generate
 // ═══════════════════════════════════════════════════════════════════
 function generatePairCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -380,32 +375,24 @@ function ensureDeviceId() {
     return id;
 }
 
-/**
- * Resolve the active pair code.
- * Returns the code if found via URL param or localStorage; null if neither present.
- * Never auto-generates — that is the onboarding screen's job.
- */
 function resolveActivePairId() {
     const urlParam = new URLSearchParams(window.location.search).get('pair');
     if (urlParam) {
-        const code = urlParam.toUpperCase().trim();
-        localStorage.setItem('activePairId', code);
-        return code;
+        const code = urlParam.toUpperCase().trim().replace(/[^A-Z0-9]/g, '');
+        if (PAIR_CODE_RE.test(code)) {
+            localStorage.setItem('activePairId', code);
+            return code;
+        }
     }
     return localStorage.getItem('activePairId') || null;
 }
 
 const DEVICE_ID = ensureDeviceId();
-let   activePairId = null;  // set by init()
+let   activePairId = null;
 
-// Single-source Firestore collection accessor
 const col = (name) => globalPairsRef.doc(activePairId).collection(name);
 
-// v2 PLACEHOLDER — Registration Gate
-async function registerPair(pairId) {
-    // v2: verify pairId in /registry/{pairId}, enforce invite/capacity rules.
-    return true; // open: any code creates or joins a pair
-}
+async function registerPair(pairId) { return true; }
 
 // ═══════════════════════════════════════════════════════════════════
 // APPLICATION STATE
@@ -428,25 +415,15 @@ let unsubSavedList  = null;
 
 // ═══════════════════════════════════════════════════════════════════
 // ONBOARDING SCREEN
-// Shown when no pair code exists in URL param or localStorage.
-// User enters an existing code to restore, or creates a new one.
 // ═══════════════════════════════════════════════════════════════════
-function showOnboarding() {
-    document.getElementById('onboardingScreen').classList.add('active');
-}
-
-function hideOnboarding() {
-    document.getElementById('onboardingScreen').classList.remove('active');
-}
-
-function setOnboardError(msg) {
-    document.getElementById('onboardError').textContent = msg;
-}
+function showOnboarding() { document.getElementById('onboardingScreen').classList.add('active'); }
+function hideOnboarding() { document.getElementById('onboardingScreen').classList.remove('active'); }
+function setOnboardError(msg) { document.getElementById('onboardError').textContent = msg; }
 
 async function onboardJoinPair() {
     const raw  = document.getElementById('onboardPairInput').value.trim().toUpperCase();
     if (!raw) { setOnboardError('Please enter a pair code.'); return; }
-    if (!PAIR_CODE_RE.test(raw)) { setOnboardError('Pair code must be 5 letters/numbers (e.g. X7K2P).'); return; }
+    if (!PAIR_CODE_RE.test(raw)) { setOnboardError('Pair code must be 5 characters.'); return; }
     await activatePair(raw);
     hideOnboarding();
     await postPairActivation();
@@ -460,14 +437,12 @@ async function onboardCreateNew() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// PAIR ACTIVATION — shared by onboarding, settings switch, direct switch
+// PAIR ACTIVATION
 // ═══════════════════════════════════════════════════════════════════
 async function activatePair(code) {
-    // Tear down existing listeners
     if (unsubActiveList) unsubActiveList();
     if (unsubSavedList)  unsubSavedList();
 
-    // Reset state
     currentItems                 = [];
     savedRecallList              = [];
     localEditingItems            = [];
@@ -481,7 +456,6 @@ async function activatePair(code) {
     localStorage.setItem('activePairId', code);
     updatePairCodeDisplay();
 
-    // Register this pair as active in the global pairs registry
     globalPairsRef.doc(code).set(
         { lastActive: firebase.firestore.FieldValue.serverTimestamp() },
         { merge: true }
@@ -515,16 +489,21 @@ function updatePairCodeDisplay() {
 
 function copyPairCode() {
     if (!activePairId) return;
-    navigator.clipboard.writeText(activePairId).then(() => {
-        const lbl  = document.getElementById('pairCodeLabel');
-        const orig = lbl.textContent;
-        lbl.textContent = 'Copied!';
-        setTimeout(() => { lbl.textContent = orig; }, 1500);
+    
+    // Builds link with configuration metrics attached directly to query selectors
+    const baseUrl = window.location.href.split('?')[0];
+    const fullSyncUrl = `${baseUrl}?pair=${activePairId}&name=${encodeURIComponent(userProfile.name)}&icon=${encodeURIComponent(userProfile.icon)}`;
+    
+    navigator.clipboard.writeText(fullSyncUrl).then(() => {
+        const btn = document.querySelector('.pair-code-copy-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied Link!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// AI — GROQ VIA PROXY (key never touches the client)
+// AI PROXY SETUP
 // ═══════════════════════════════════════════════════════════════════
 async function callGroqViaProxy(messages, maxTokens = 10) {
     try {
@@ -536,9 +515,9 @@ async function callGroqViaProxy(messages, maxTokens = 10) {
                 payload: { model: GROQ_MODEL, messages, temperature: 0.1, max_tokens: maxTokens }
             })
         });
-        if (!res.ok) { console.error('Proxy error:', res.status); return null; }
+        if (!res.ok) return null;
         return await res.json();
-    } catch (e) { console.error('Proxy fetch failed:', e); return null; }
+    } catch (e) { return null; }
 }
 
 async function fetchGroqClassification(text) {
@@ -571,18 +550,17 @@ async function bulkCategorizeAll(e) {
         for (const d of ss.docs) { const t = d.data().l1||d.data().l2; if(t) sc += await classifyAndUpdate('savedRecallList',d.id,t,cats); }
         for (const d of as.docs) { const t = d.data().l1||d.data().l2; if(t) lc += await classifyAndUpdate('activeList',d.id,t,cats); }
         alert(`AI sorting complete! Updated ${sc} shortcuts and ${lc} list items.`);
-    } catch(err) { console.error(err); alert('Error connecting to AI proxy.'); }
+    } catch(err) { alert('Error connecting to AI proxy.'); }
     finally { btn.innerHTML = orig; btn.disabled = false; }
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SETTINGS & DROPDOWNS
+// SETTINGS & THEMES
 // ═══════════════════════════════════════════════════════════════════
 function toggleDropdown() {
     const m = document.getElementById('settingsDropdown');
     m.style.display = m.style.display === 'block' ? 'none' : 'block';
 }
-
 function toggleActionsDropdown() {
     const m = document.getElementById('actionsDropdown');
     m.style.display = m.style.display === 'block' ? 'none' : 'block';
@@ -617,25 +595,16 @@ function updateThemeIconGlyph(theme) {
     if (g) g.textContent = DARK_THEMES.includes(theme) ? 'dark_mode' : 'light_mode';
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// PAIR SWITCHING (from settings dropdown)
-// ═══════════════════════════════════════════════════════════════════
 async function switchPair() {
     const input = document.getElementById('switchPairInput').value.trim().toUpperCase();
     if (!input || input.length < 3) { alert('Enter a valid pair code.'); return; }
     if (input === activePairId)     { alert('Already on this pair.'); return; }
-    const allowed = await registerPair(input);
-    if (!allowed) { alert('Pair not found or access denied.'); return; }
     await activatePair(input);
     document.getElementById('switchPairInput').value = '';
     document.getElementById('settingsDropdown').style.display = 'none';
     await postPairActivation();
-    alert(`Switched to pair ${activePairId}`);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// PAIRS MANAGER MODAL
-// ═══════════════════════════════════════════════════════════════════
 function openPairsManagerModal() {
     document.getElementById('settingsDropdown').style.display = 'none';
     const container = document.getElementById('pairsModalList');
@@ -643,29 +612,59 @@ function openPairsManagerModal() {
     document.getElementById('pairsManagerModal').classList.add('active');
 
     globalPairsRef.get().then(snap => {
-        if (snap.empty) { container.innerHTML = '<p style="text-align:center; opacity:.5; font-size:13px;">No active pairs found.</p>'; return; }
+        if (snap.empty) { container.innerHTML = '<p style="text-align:center; opacity:.5; font-size:13px;">No active pairs.</p>'; return; }
         let html = '';
         snap.forEach(doc => {
             const id = doc.id, isCur = (id === activePairId);
             html += `<div style="display:flex; align-items:center; gap:8px; padding:10px; background:rgba(255,255,255,.03); border:1px solid ${isCur ? 'var(--accent)' : 'var(--col)'}; border-radius:7px;">
-                <div style="flex:1; font-family:monospace; font-size:15px; font-weight:700; color:${isCur ? 'var(--accent)' : 'var(--text)'};">${id}${isCur ? ' <span style="font-size:11px; font-family:sans-serif; opacity:.55;">(Current)</span>' : ''}</div>
+                <div style="flex:1; font-family:monospace; font-size:15px; font-weight:700; color:${isCur ? 'var(--accent)' : 'var(--text)'};">${id}</div>
                 <button onclick="directSwitchPair('${id}')" ${isCur ? 'disabled' : ''}
-                        style="background:${isCur ? 'var(--col)' : 'var(--accent)'}; color:var(--bg); border:none; padding:5px 12px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer; opacity:${isCur ? '.4' : '1'};">Join</button>
+                        style="background:${isCur ? 'var(--col)' : 'var(--accent)'}; color:var(--bg); border:none; padding:5px 12px; border-radius:5px; font-size:12px; font-weight:700; cursor:pointer;">Join</button>
             </div>`;
         });
         container.innerHTML = html;
-    }).catch(err => {
-        console.error(err);
-        container.innerHTML = '<p style="text-align:center; color:#dc3545; font-size:12px;">Failed to load pairs.</p>';
     });
 }
 
+function closePairsManagerModal() { document.getElementById('pairsManagerModal').classList.remove('active'); }
+async function directSwitchPair(targetId) { await activatePair(targetId); closePairsManagerModal(); await postPairActivation(); }
+
 // ═══════════════════════════════════════════════════════════════════
-// PROFILE — localStorage first, Firestore fallback, picker last
+// PROFILE & URL QUICK IDENTITY PIPELINE
 // ═══════════════════════════════════════════════════════════════════
+function selectQuickProfile(name, icon) {
+    document.getElementById('profileNameInput').value = name;
+    selectedProfileEmoji = icon;
+    
+    document.querySelectorAll('.emoji-option').forEach(el => {
+        if (el.textContent === icon) el.classList.add('selected');
+        else el.classList.remove('selected');
+    });
+    
+    saveProfile();
+}
+
 async function checkUserProfile() {
+    const params = new URLSearchParams(window.location.search);
+    const urlPair = params.get('pair');
+    const urlName = params.get('name');
+    const urlIcon = params.get('icon');
+
+    // Scenario A: Full explicit tracking details passed directly through URL parameters
+    if (urlPair && urlName && urlIcon) {
+        userProfile = { name: decodeURIComponent(urlName), icon: decodeURIComponent(urlIcon) };
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        updateHeaderProfileDisplay();
+        globalUsersRef.doc(DEVICE_ID).set(userProfile, { merge: true });
+        
+        // Scrub historical parameter data to keep address bar clean
+        window.history.replaceState({}, document.title, window.location.pathname + `?pair=${urlPair}`);
+        return;
+    }
+
+    // Scenario B: Standard return visitor check via localized cache
     const cached = localStorage.getItem('userProfile');
-    if (cached) {
+    if (cached && !urlPair) {
         const p = JSON.parse(cached);
         if (p.name && p.name !== 'User') {
             userProfile = p;
@@ -674,17 +673,15 @@ async function checkUserProfile() {
             return;
         }
     }
-    try {
-        const snap = await globalUsersRef.doc(DEVICE_ID).get();
-        if (snap.exists) {
-            userProfile = snap.data();
-            localStorage.setItem('userProfile', JSON.stringify(userProfile));
-            updateHeaderProfileDisplay();
-            return;
-        }
-    } catch(e) { console.warn('Profile lookup failed:', e); }
-    // If list already has items this is a returning user — make profile dismissible
-    openProfileModal('Welcome! Set up your profile.', currentItems.length > 0);
+
+    // Scenario C: Partial bookmark link hit (pair assigned, no profile identity info) -> Triggers choice menu
+    if (urlPair && (!urlName || !urlIcon)) {
+        document.getElementById('quickProfileContainer').style.display = 'flex';
+    } else {
+        document.getElementById('quickProfileContainer').style.display = 'none';
+    }
+
+    openProfileModal('Identify yourself to sync lists cleanly across networks.', currentItems.length > 0);
 }
 
 function openProfileModal(subtext = '', dismissible = false) {
@@ -695,9 +692,7 @@ function openProfileModal(subtext = '', dismissible = false) {
     ).join('');
     document.getElementById('profileNameInput').value = userProfile.name !== 'User' ? userProfile.name : '';
     document.getElementById('profileModalSubtext').textContent = subtext;
-    // Show X to dismiss if dismissible (e.g. list already exists, profile is optional)
-    const closeBtn = document.getElementById('profileModalCloseBtn');
-    if (closeBtn) closeBtn.style.display = dismissible ? 'block' : 'none';
+    document.getElementById('profileModalCloseBtn').style.display = dismissible ? 'block' : 'none';
     document.getElementById('profileModal').classList.add('active');
 }
 
@@ -712,25 +707,24 @@ async function saveProfile() {
     if (!raw) { alert('Please enter a name!'); return; }
     userProfile = { name: raw, icon: selectedProfileEmoji };
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
-    try { await globalUsersRef.doc(DEVICE_ID).set(userProfile); }
-    catch(e) { console.warn('Profile save failed:', e); }
+    globalUsersRef.doc(DEVICE_ID).set(userProfile).catch(() => {});
     updateHeaderProfileDisplay();
     document.getElementById('profileModal').classList.remove('active');
     renderList();
 }
 
 function deleteAndResetUser() {
-    if (!confirm('Reset your profile?')) return;
+    if (!confirm('Reset profile configurations?')) return;
     localStorage.removeItem('userProfile');
     userProfile = { name: 'User', icon: '🛒' };
     globalUsersRef.doc(DEVICE_ID).delete().catch(() => {});
     updateHeaderProfileDisplay();
     document.getElementById('settingsDropdown').style.display = 'none';
-    openProfileModal('Profile cleared. Set up again.');
+    openProfileModal('Configurations flushed.');
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// CATEGORY MANAGER
+// CATEGORIES MANAGER
 // ═══════════════════════════════════════════════════════════════════
 function openCategoryModal() {
     const rawCSV = document.getElementById('settingsCategories').value.trim() || DEFAULT_CATEGORIES;
@@ -764,8 +758,6 @@ function addNewCategoryRow() {
     modalCategoryState.push({ name, active: true });
     input.value = '';
     renderCategoryModalRows();
-    const c = document.getElementById('categoryModalList');
-    setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
 }
 
 function removeCategoryFromModal(idx) { modalCategoryState.splice(idx, 1); renderCategoryModalRows(); }
@@ -781,14 +773,8 @@ function saveCategoryModalChanges() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SWIPE GESTURE ENGINE (main list)
+// SWIPE REGISTRY HANDLERS
 // ═══════════════════════════════════════════════════════════════════
-let touchStartX = 0, touchStartY = 0;
-let activeSwipeRowId = null;
-let isSwiping = false, isScrolling = false;
-let longPressTimer = null, isLongPressTriggered = false;
-let openSwipeId = null;
-
 function handleTouchStart(id, e) {
     if (openSwipeId && openSwipeId !== id) { closeSwipeRow(openSwipeId); return; }
     const t = e.changedTouches[0];
@@ -852,14 +838,8 @@ function closeSwipeRow(id) {
     openSwipeId = null;
 }
 
-function handleTouchCancel(id) {
-    clearTimeout(longPressTimer); closeSwipeRow(id);
-    activeSwipeRowId = null; isSwiping = false; isScrolling = false;
-}
+function handleTouchCancel(id) { clearTimeout(longPressTimer); closeSwipeRow(id); activeSwipeRowId = null; isSwiping = false; isScrolling = false; }
 
-// ═══════════════════════════════════════════════════════════════════
-// MODAL SWIPE — closure-based, no globals
-// ═══════════════════════════════════════════════════════════════════
 function attachModalSwipe(el) {
     let startX = 0, swiped = false;
     el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
@@ -871,11 +851,10 @@ function attachModalSwipe(el) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SHORTCUTS (FAVORITES) MODAL
+// SAVED / SHORTCUTS MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════
 function updateSavedRecallCategory(id, cat) { col('savedRecallList').doc(id).update({ category: cat }); }
-
-function openSavedModal()  { document.getElementById('savedModal').add ? null : document.getElementById('savedModal').classList.add('active'); renderModalItems(); }
+function openSavedModal()  { document.getElementById('savedModal').classList.add('active'); renderModalItems(); }
 
 function closeSavedModal() {
     savedRecallList.forEach(item => {
@@ -895,14 +874,11 @@ function closeSavedModal() {
 }
 
 function toggleModalCheckbox(id, cur)  { col('savedRecallList').doc(id).update({ selected: !cur }); }
-
-function deleteSavedRecallItem(id) {
-    if (confirm('Delete shortcut permanently?')) col('savedRecallList').doc(id).delete();
-}
+function deleteSavedRecallItem(id)      { if (confirm('Delete permanently?')) col('savedRecallList').doc(id).delete(); }
 
 function renderModalItems() {
     const container = document.getElementById('modalItemsContainer');
-    if (!savedRecallList.length) { container.innerHTML = '<p style="text-align:center; opacity:.5;">No saved shortcuts yet.</p>'; return; }
+    if (!savedRecallList.length) { container.innerHTML = '<p style="text-align:center; opacity:.5;">No shortcuts saved.</p>'; return; }
     const cats = getParsedCategories();
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
@@ -936,9 +912,6 @@ function renderModalItems() {
     container.querySelectorAll('[data-swipe-id]').forEach(el => attachModalSwipe(el));
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// SWIPE ACTIONS
-// ═══════════════════════════════════════════════════════════════════
 function swipeAction(id, action) {
     closeSwipeRow(id);
     if (action === 'save')   toggleSaveRecallState(id);
@@ -946,7 +919,7 @@ function swipeAction(id, action) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// UNDO DELETE BUFFER (5s)
+// LIFE CYCLES & MUTATIONS
 // ═══════════════════════════════════════════════════════════════════
 function initiateDeleteWithUndoSafety(id) {
     if (String(id).startsWith('local-')) {
@@ -984,34 +957,28 @@ function finalizePermanentDelete(id) {
     col('activeList').doc(id).delete().then(() => renderList());
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// DELETE ALL — confirm modal + one-shot restore
-// ═══════════════════════════════════════════════════════════════════
 function clearEntireActiveList() {
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay active';
-    overlay.style.zIndex = '9999';
+    overlay.className = 'modal-overlay active'; overlay.style.zIndex = '9999';
     overlay.innerHTML = `
         <div class="modal-content" style="max-width:320px; text-align:center;">
             <h3 style="margin-top:0; color:var(--accent);">Delete All Items?</h3>
-            <p style="font-size:13px; opacity:.8;">Removes everything from the active list. Restorable from the menu afterward.</p>
+            <p style="font-size:13px; opacity:.8;">Removes everything from the active list view.</p>
             <div style="display:flex; gap:10px; margin-top:14px;">
-                <button id="cancelClearBtn" style="flex:1; background:var(--col); color:var(--text); border:none; padding:11px; border-radius:7px; cursor:pointer; font-weight:700;">Cancel</button>
-                <button id="confirmClearBtn" style="flex:1; background:#dc3545; color:#fff; border:none; padding:11px; border-radius:7px; cursor:pointer; font-weight:700;">Delete All</button>
+                <button id="cancelClearBtn" style="flex:1; background:var(--col); color:var(--text); border:none; padding:11px; border-radius:7px; cursor:pointer;">Cancel</button>
+                <button id="confirmClearBtn" style="flex:1; background:#dc3545; color:#fff; border:none; padding:11px; border-radius:7px; cursor:pointer;">Delete All</button>
             </div>
         </div>`;
     document.body.appendChild(overlay);
     overlay.querySelector('#cancelClearBtn').onclick = () => overlay.remove();
     overlay.querySelector('#confirmClearBtn').onclick = async () => {
         overlay.remove();
-        try {
-            const snap = await col('activeList').get();
-            lastClearedSnapshot = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-            openSwipeId = null;
-        } catch(err) { console.error(err); alert('Failed to clear list.'); }
+        const snap = await col('activeList').get();
+        lastClearedSnapshot = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const batch = db.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        openSwipeId = null;
     };
 }
 
@@ -1021,7 +988,6 @@ async function restoreLastCleared() {
     lastClearedSnapshot.forEach(({ id, ...data }) => batch.set(col('activeList').doc(id), data));
     await batch.commit();
     lastClearedSnapshot = null;
-    alert('Restored deleted items.');
 }
 
 async function restoreAllCompleted() {
@@ -1029,60 +995,25 @@ async function restoreAllCompleted() {
     if (checked.length) {
         const batch = db.batch();
         checked.forEach(item => batch.update(col('activeList').doc(item.id), { checked: false }));
-        await batch.commit();
-        return;
+        await batch.commit(); return;
     }
     if (lastDeletedCompletedSnapshot?.length) {
         const batch = db.batch();
         lastDeletedCompletedSnapshot.forEach(({ id, ...data }) => batch.set(col('activeList').doc(id), { ...data, checked: true }));
-        await batch.commit();
-        lastDeletedCompletedSnapshot = null;
-        return;
+        await batch.commit(); lastDeletedCompletedSnapshot = null;
     }
-    alert('No completed items to restore.');
 }
 
 async function deleteLocalCompletedRows() {
     const done = currentItems.filter(i => i.checked);
-    if (!done.length) { alert('No completed items to delete.'); return; }
+    if (!done.length) return;
     if (!confirm(`Delete all ${done.length} completed items?`)) return;
     lastDeletedCompletedSnapshot = done.map(item => ({ ...item }));
     const batch = db.batch();
     done.forEach(item => batch.delete(col('activeList').doc(item.id)));
-    await batch.commit();
-    openSwipeId = null;
+    await batch.commit(); openSwipeId = null;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CATEGORY PICKER FALLBACK (when AI unavailable)
-// ═══════════════════════════════════════════════════════════════════
-function askUserForCategory(l1, l2, qty, addedBy, addedIcon) {
-    return new Promise(resolve => {
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay active'; overlay.style.zIndex = '9999';
-        const cats = getParsedCategories();
-        overlay.innerHTML = `
-            <div class="modal-content" style="max-width:320px; text-align:center;">
-                <h3 style="margin-top:0; color:var(--accent);">Categorize Item</h3>
-                <p style="font-weight:700; font-size:16px; margin-bottom:18px;">"${l1}"</p>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    ${cats.map(c => `<button class="modal-close-btn" style="margin:0; background:var(--col);" data-cat="${c}">📦 ${c}</button>`).join('')}
-                </div>
-            </div>`;
-        overlay.addEventListener('click', function handler(e) {
-            const btn = e.target.closest('[data-cat]');
-            if (!btn) return;
-            overlay.removeEventListener('click', handler); overlay.remove();
-            col('activeList').add({ l1, l2, qty, timestamp: firebase.firestore.FieldValue.serverTimestamp(), isEditing: false, checked: false, saved: false, addedBy, addedIcon, category: btn.dataset.cat })
-                .then(() => resolve(btn.dataset.cat));
-        });
-        document.body.appendChild(overlay);
-    });
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// DATA INTERACTION
-// ═══════════════════════════════════════════════════════════════════
 function createNewBlankRow() {
     localEditingItems.push({
         id: 'local-' + Date.now(), l1: '', l2: '', qty: 1,
@@ -1113,7 +1044,7 @@ function toggleSaveRecallState(id) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// INPUT SAVE PIPELINE
+// TRANSLATION INPUT PIPE
 // ═══════════════════════════════════════════════════════════════════
 function saveSplitInputs(id) {
     if (processingIds.has(id)) return;
@@ -1138,7 +1069,7 @@ function saveSplitInputs(id) {
     }
 
     if (isLocal) {
-        const target    = localEditingItems.find(i => i.id === id);
+        const target    = localEditingItems.find(i => i.id !== id);
         const addedBy   = target?.addedBy   ?? userProfile.name;
         const addedIcon = target?.addedIcon ?? userProfile.icon;
 
@@ -1150,10 +1081,9 @@ function saveSplitInputs(id) {
                 const db_l2 = lang1 === langB ? rawText : translated;
 
                 const LOOKUP = [
-                    { cat:'Produce', keys:['apple','banana','onion','garlic','lime','lemon','tomato','potato','chili','salad','ผัก','ผลไม้','มะนาว','พริก','กระเทียม','หอม'] },
-                    { cat:'Meat',    keys:['chicken','pork','beef','fish','shrimp','salmon','steak','bacon','sausage','หมู','ไก่','เนื้อ','ปลา','กุ้ง'] },
-                    { cat:'Dairy',   keys:['milk','cheese','butter','yogurt','cream','eggs','นม','เนย','ชีส','ไข่'] },
-                    { cat:'Pantry',  keys:['rice','oil','sauce','sugar','salt','pasta','noodle','bread','coffee','tea','ข้าว','น้ำมัน','ซอส','น้ำตาล','กาแฟ'] }
+                    { cat:'Produce', keys:['apple','banana','onion','garlic','lime','lemon','tomato','potato','chili','salad','ผัก','ผลไม้'] },
+                    { cat:'Meat',    keys:['chicken','pork','beef','fish','shrimp','salmon','หมู','ไก่','เนื้อ','ปลา'] },
+                    { cat:'Dairy',   keys:['milk','cheese','butter','yogurt','cream','eggs','นม','เนย','ไข่'] }
                 ];
                 const l1l = db_l1.toLowerCase(), l2l = db_l2.toLowerCase();
                 let cat = LOOKUP.find(g => g.keys.some(k => l1l.includes(k)||l2l.includes(k)))?.cat ?? null;
@@ -1166,9 +1096,7 @@ function saveSplitInputs(id) {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     isEditing: false, checked: false, saved: false, addedBy, addedIcon
                 }).finally(() => processingIds.delete(id));
-            })
-            .catch(() => processingIds.delete(id));
-
+            }).catch(() => processingIds.delete(id));
     } else {
         const payload = { isEditing: false, qty, editingField: firebase.firestore.FieldValue.delete() };
         let val1 = itemMatch.l1, val2 = itemMatch.l2;
@@ -1186,7 +1114,7 @@ function saveSplitInputs(id) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// FILTER
+// FILTER CORES
 // ═══════════════════════════════════════════════════════════════════
 function toggleCategoryView() {
     categoriesEnabled = !categoriesEnabled;
@@ -1194,14 +1122,12 @@ function toggleCategoryView() {
     document.getElementById('filterBar').style.display       = categoriesEnabled ? 'flex' : 'none';
     renderList();
 }
-
 function setFilter(cat, btnEl) {
     currentFilter = cat;
     document.querySelectorAll('#filterBar .chip').forEach(el => el.style.background = 'var(--col)');
     if (btnEl) btnEl.style.background = 'var(--accent)';
     renderList();
 }
-
 function updateFilterBar() {
     const bar = document.getElementById('filterBar');
     if (!bar) return;
@@ -1213,12 +1139,12 @@ function updateFilterBar() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// RENDER LIST
+// RENDERING LOOPS
 // ═══════════════════════════════════════════════════════════════════
 function renderList() {
-    const container    = document.getElementById('itemList');
+    const container = document.getElementById('itemList');
     const visibleFromDb = currentItems.filter(i => !localDeletedTimers[i.id]);
-    const allVisible   = [...localEditingItems, ...visibleFromDb];
+    const allVisible = [...localEditingItems, ...visibleFromDb];
     const lang1 = document.getElementById('lang1').value;
     const lang2 = document.getElementById('lang2').value;
     const langA = lang1 < lang2 ? lang1 : lang2;
@@ -1231,7 +1157,7 @@ function renderList() {
         return;
     }
 
-    const cats   = getParsedCategories();
+    const cats = getParsedCategories();
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
     allVisible.forEach(item => {
@@ -1250,31 +1176,24 @@ function renderList() {
             const c1 = lang1 === langA ? item.l1 : item.l2;
             const c2 = lang2 === langA ? item.l1 : item.l2;
             if (item.isEditing) {
-                const ev   = item.editingField === 'translation' ? c2 : c1;
+                const ev = item.editingField === 'translation' ? c2 : c1;
                 const icon = item.addedIcon || userProfile.icon;
                 html += `
                     <div class="swipe-wrapper">
                         <div class="item-row" style="z-index:10; display:flex; align-items:center; gap:6px; padding:8px 12px;">
                             <div style="flex:0 0 auto; font-size:16px;">${icon}</div>
-                            <div style="flex:0 0 42px;">
-                                <input type="number" id="input-qty-${item.id}" class="row-input" value="${item.qty||1}" min="1" max="99" autocomplete="off" style="text-align:center; padding:6px 2px;">
-                            </div>
-                            <div style="flex:1; min-width:0;">
-                                <input type="text" id="input-${item.id}" class="row-input" value="${ev||''}" placeholder="Item…" autocomplete="off"
-                                       onkeydown="if(event.key==='Enter'){event.preventDefault();saveSplitInputs('${item.id}');}">
-                            </div>
-                            <button onclick="saveSplitInputs('${item.id}')" style="background:none; border:none; color:var(--accent); font-size:20px; cursor:pointer; padding:0 4px; font-weight:700;">✓</button>
+                            <div style="flex:0 0 42px;"><input type="number" id="input-qty-${item.id}" class="row-input" value="${item.qty||1}" min="1" max="99" style="text-align:center; padding:6px 2px;"></div>
+                            <div style="flex:1; min-width:0;"><input type="text" id="input-${item.id}" class="row-input" value="${ev||''}" placeholder="Item…" onkeydown="if(event.key==='Enter'){event.preventDefault();saveSplitInputs('${item.id}');}"></div>
+                            <button onclick="saveSplitInputs('${item.id}')" style="background:none; border:none; color:var(--accent); font-size:20px; font-weight:700;">✓</button>
                         </div>
                     </div>`;
             } else {
                 const scratch = item.checked ? 'scratch-through' : '';
-                const qty     = item.qty ? ` (${item.qty})` : ' (1)';
-                const si      = item.saved ? ' <span style="color:#61afef; font-size:13px; margin-left:3px;">📂</span>' : '';
-                const badge   = (item.addedBy && item.addedIcon)
-                    ? `<span style="font-size:10px; opacity:.65; margin-right:6px; font-weight:700; color:var(--accent); white-space:nowrap;">${item.addedIcon} ${item.addedBy}</span>`
-                    : '';
+                const qty = item.qty ? ` (${item.qty})` : ' (1)';
+                const si = item.saved ? ' <span style="color:#61afef; font-size:13px; margin-left:3px;">📂</span>' : '';
+                const badge = (item.addedBy && item.addedIcon) ? `<span style="font-size:10px; opacity:.65; margin-right:6px; font-weight:700; color:var(--accent);">${item.addedIcon} ${item.addedBy}</span>` : '';
                 html += `
-                    <div class="swipe-wrapper" oncontextmenu="event.preventDefault();return false;">
+                    <div class="swipe-wrapper" oncontextmenu="event.preventDefault();">
                         <div class="swipe-background">
                             <div class="swipe-bg-left"  onclick="swipeAction('${item.id}','save')">📂 Save</div>
                             <div class="swipe-bg-right" onclick="swipeAction('${item.id}','delete')">🗑️ Delete</div>
@@ -1294,130 +1213,60 @@ function renderList() {
 
     Object.entries(localDeletedTimers).forEach(([id, track]) => {
         const label = lang1 === langA ? track.item.l1 : track.item.l2;
-        html += `
-            <div class="undo-tray" id="undo-tray-${id}">
-                <span>Deleted "${label}" (<span id="undo-count-${id}">${track.countdown}</span>s)</span>
-                <button class="undo-btn" onclick="restoreDeletedItem('${id}')">UNDO</button>
-            </div>`;
+        html += `<div class="undo-tray"><span>Deleted "${label}" (<span id="undo-count-${id}">${track.countdown}</span>s)</span><button class="undo-btn" onclick="restoreDeletedItem('${id}')">UNDO</button></div>`;
     });
 
     container.innerHTML = html;
-    allVisible.forEach(item => {
-        if (item.isEditing) {
-            const el = document.getElementById(`input-${item.id}`);
-            if (el && document.activeElement !== el) el.focus();
-        }
-    });
+    allVisible.forEach(item => { if (item.isEditing) { const el = document.getElementById(`input-${item.id}`); if (el && document.activeElement !== el) el.focus(); } });
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// FIRESTORE LISTENERS — torn down and reattached on pair switch
+// SYNC LISTENERS
 // ═══════════════════════════════════════════════════════════════════
 function attachFirestoreListeners() {
     if (unsubActiveList) unsubActiveList();
     if (unsubSavedList)  unsubSavedList();
 
-    unsubActiveList = col('activeList').orderBy('timestamp','asc').onSnapshot(snap => {
-        currentItems = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        renderList();
-    });
-
-    unsubSavedList = col('savedRecallList').onSnapshot(snap => {
-        savedRecallList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        if (document.getElementById('savedModal').classList.contains('active')) renderModalItems();
-    });
-}
-
-function closePairsManagerModal() {
-    document.getElementById('pairsManagerModal').classList.remove('active');
-}
-
-async function directSwitchPair(targetId) {
-    await activatePair(targetId);
-    closePairsManagerModal();
-    await postPairActivation();
+    unsubActiveList = col('activeList').orderBy('timestamp','asc').onSnapshot(snap => { currentItems = snap.docs.map(d => ({ ...d.data(), id: d.id })); renderList(); });
+    unsubSavedList = col('savedRecallList').onSnapshot(snap => { savedRecallList = snap.docs.map(d => ({ ...d.data(), id: d.id })); if (document.getElementById('savedModal').classList.contains('active')) renderModalItems(); });
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// IMPORT / EXPORT
+// DATA IMPORT / EXPORT BACKUPS
 // ═══════════════════════════════════════════════════════════════════
 async function exportData() {
     const [as, ss] = await Promise.all([col('activeList').orderBy('timestamp','asc').get(), col('savedRecallList').get()]);
-    const payload = {
-        exportedAt: new Date().toISOString(), pairId: activePairId,
-        categories: document.getElementById('settingsCategories').value.trim(),
-        activeList: as.docs.map(d => ({ id: d.id, ...d.data() })),
-        savedRecallList: ss.docs.map(d => ({ id: d.id, ...d.data() }))
-    };
+    const payload = { exportedAt: new Date().toISOString(), pairId: activePairId, categories: document.getElementById('settingsCategories').value.trim(), activeList: as.docs.map(d => ({ id: d.id, ...d.data() })), savedRecallList: ss.docs.map(d => ({ id: d.id, ...d.data() })) };
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay active'; overlay.style.zIndex = '9999';
-    overlay.innerHTML = `
-        <div class="modal-content" style="max-width:90vw; width:90vw;">
-            <div class="modal-header">
-                <h3>Export Data</h3>
-                <span style="cursor:pointer; font-size:20px;" onclick="this.closest('.modal-overlay').remove()">×</span>
-            </div>
-            <p style="font-size:12px; opacity:.55; margin-top:0;">Select all and copy to save as a backup file.</p>
-            <textarea id="exportTextArea" style="width:100%; height:50vh; background:var(--bg); color:var(--text); border:1px solid var(--col); border-radius:7px; font-size:11px; font-family:monospace; padding:9px; resize:none;">${JSON.stringify(payload,null,2)}</textarea>
-            <button class="modal-close-btn" onclick="document.getElementById('exportTextArea').select(); document.execCommand('copy'); this.textContent='✅ Copied!';">Copy to Clipboard</button>
-        </div>`;
+    overlay.innerHTML = `<div class="modal-content" style="max-width:90vw; width:90vw;"><div class="modal-header"><h3>Export Data</h3><span style="cursor:pointer; font-size:20px;" onclick="this.closest('.modal-overlay').remove()">×</span></div><textarea id="exportTextArea" style="width:100%; height:50vh; background:var(--bg); color:var(--text); font-size:11px; font-family:monospace; padding:9px; resize:none;">${JSON.stringify(payload,null,2)}</textarea><button class="modal-close-btn" onclick="document.getElementById('exportTextArea').select(); document.execCommand('copy'); this.textContent='✅ Copied!';">Copy Backup String</button></div>`;
     document.body.appendChild(overlay);
-    setTimeout(() => document.getElementById('exportTextArea').select(), 100);
 }
 
 function openImportModal() {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay active'; overlay.style.zIndex = '9999';
-    overlay.innerHTML = `
-        <div class="modal-content" style="max-width:90vw; width:90vw;">
-            <div class="modal-header">
-                <h3>Import Data</h3>
-                <span style="cursor:pointer; font-size:20px;" onclick="this.closest('.modal-overlay').remove()">×</span>
-            </div>
-            <p style="font-size:12px; opacity:.55; margin-top:0;">Paste your exported JSON below then tap Import.</p>
-            <textarea id="importTextArea" style="width:100%; height:50vh; background:var(--bg); color:var(--text); border:1px solid var(--col); border-radius:7px; font-size:11px; font-family:monospace; padding:9px; resize:none;" placeholder="Paste JSON here…"></textarea>
-            <button class="modal-close-btn" onclick="importData()">⬇️ Import</button>
-        </div>`;
+    overlay.innerHTML = `<div class="modal-content" style="max-width:90vw; width:90vw;"><div class="modal-header"><h3>Import Data</h3><span style="cursor:pointer; font-size:20px;" onclick="this.closest('.modal-overlay').remove()">×</span></div><textarea id="importTextArea" style="width:100%; height:50vh; background:var(--bg); color:var(--text); font-family:monospace; padding:9px; resize:none;" placeholder="Paste JSON here…"></textarea><button class="modal-close-btn" onclick="importData()">⬇️ Import</button></div>`;
     document.body.appendChild(overlay);
-    setTimeout(() => document.getElementById('importTextArea').focus(), 100);
 }
 
 async function importData() {
-    const ta   = document.getElementById('importTextArea');
-    const text = ta ? ta.value.trim() : '';
-    if (!text) { alert('Nothing to import.'); return; }
-    if (!confirm('This will overwrite the current list and shortcuts. Continue?')) return;
+    const text = document.getElementById('importTextArea')?.value.trim();
+    if (!text || !confirm('Overwrite active dataset completely?')) return;
     try {
-        const payload = JSON.parse(text);
-        const batch   = db.batch();
-        if (payload.categories) {
-            document.getElementById('settingsCategories').value = payload.categories;
-            updateSettings(); updateFilterBar();
-        }
-        if (payload.activeList) {
-            const ex = await col('activeList').get();
-            ex.docs.forEach(d => batch.delete(d.ref));
-            payload.activeList.forEach(({ id, ...data }) => {
-                batch.set(col('activeList').doc(id), { ...data, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            });
-        }
-        if (payload.savedRecallList) {
-            const ex = await col('savedRecallList').get();
-            ex.docs.forEach(d => batch.delete(d.ref));
-            payload.savedRecallList.forEach(({ id, ...data }) => batch.set(col('savedRecallList').doc(id), data));
-        }
-        await batch.commit();
-        alert('Import complete!');
-    } catch(err) { console.error(err); alert('Import failed — check the JSON.'); }
+        const payload = JSON.parse(text), batch = db.batch();
+        if (payload.categories) { document.getElementById('settingsCategories').value = payload.categories; updateSettings(); updateFilterBar(); }
+        if (payload.activeList) { const ex = await col('activeList').get(); ex.docs.forEach(d => batch.delete(d.ref)); payload.activeList.forEach(({ id, ...data }) => batch.set(col('activeList').doc(id), { ...data, timestamp: firebase.firestore.FieldValue.serverTimestamp() })); }
+        if (payload.savedRecallList) { const ex = await col('savedRecallList').get(); ex.docs.forEach(d => batch.delete(d.ref)); payload.savedRecallList.forEach(({ id, ...data }) => batch.set(col('savedRecallList').doc(id), data)); }
+        await batch.commit(); alert('Import complete!');
+    } catch(err) { alert('Import failed.'); }
     document.querySelector('.modal-overlay[style*="9999"]')?.remove();
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// ENGINE BOOT
-// Priority: URL param ?pair=X → localStorage activePairId → onboarding screen
+// ENGINE BOOT SEQUENCE
 // ═══════════════════════════════════════════════════════════════════
 async function init() {
-    // Load persisted UI preferences first so theme applies immediately
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
         document.getElementById('themeSelect').value        = prefs.theme      || 'nordic-frost';
@@ -1425,8 +1274,7 @@ async function init() {
         document.getElementById('lang2').value              = prefs.lang2      || 'th';
         document.getElementById('settingsCategories').value = prefs.categories || DEFAULT_CATEGORIES;
     } else {
-        document.getElementById('lang1').value              = 'en';
-        document.getElementById('lang2').value              = 'th';
+        document.getElementById('lang1').value = 'en'; document.getElementById('lang2').value = 'th';
         document.getElementById('settingsCategories').value = DEFAULT_CATEGORIES;
     }
     updateSettings();
@@ -1435,24 +1283,18 @@ async function init() {
     const resolvedPairId = resolveActivePairId();
 
     if (resolvedPairId) {
-        // Returning session or bookmarked URL — boot straight in
         await activatePair(resolvedPairId);
         hideOnboarding();
         await postPairActivation();
 
-        // Clear stale edit locks from prior sessions
         col('activeList').get().then(snap => {
             snap.forEach(doc => {
                 if (doc.data().isEditing) {
-                    col('activeList').doc(doc.id).update({
-                        isEditing: false,
-                        editingField: firebase.firestore.FieldValue.delete()
-                    });
+                    col('activeList').doc(doc.id).update({ isEditing: false, editingField: firebase.firestore.FieldValue.delete() });
                 }
             });
         });
     } else {
-        // No pair code anywhere — show onboarding screen
         showOnboarding();
     }
 }
