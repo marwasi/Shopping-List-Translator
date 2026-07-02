@@ -173,6 +173,9 @@
         </div>
         <div class="header-right-stack">
             <div class="header-actions-row">
+                <button class="main-toggle-btn" onclick="openSavedModal()" title="Favorites" style="margin-right: 2px;">
+                    <span class="material-symbols-outlined" style="color: var(--accent);">star</span>
+                </button>
                 <button class="main-toggle-btn" onclick="cycleThemeCollection()" title="Cycle Themes">
                     <span class="material-symbols-outlined" id="themeIconGlyph">light_mode</span>
                 </button>
@@ -261,7 +264,6 @@
         <button class="dropdown-action-btn" onclick="toggleCategoryView(); toggleActionsDropdown();">
             🗂️ <span id="catToggleTopLabel">Hide</span> Category
         </button>
-        <button class="dropdown-action-btn" onclick="openSavedModal(); toggleActionsDropdown();">⭐ Favorites</button>
     </div>
 </div>
 
@@ -658,16 +660,6 @@ function openPairsManagerModal() {
     });
 }
 
-function closePairsManagerModal() {
-    document.getElementById('pairsManagerModal').classList.remove('active');
-}
-
-async function directSwitchPair(targetId) {
-    await activatePair(targetId);
-    closePairsManagerModal();
-    await postPairActivation();
-}
-
 // ═══════════════════════════════════════════════════════════════════
 // PROFILE — localStorage first, Firestore fallback, picker last
 // ═══════════════════════════════════════════════════════════════════
@@ -883,7 +875,7 @@ function attachModalSwipe(el) {
 // ═══════════════════════════════════════════════════════════════════
 function updateSavedRecallCategory(id, cat) { col('savedRecallList').doc(id).update({ category: cat }); }
 
-function openSavedModal()  { document.getElementById('savedModal').classList.add('active'); renderModalItems(); }
+function openSavedModal()  { document.getElementById('savedModal').add ? null : document.getElementById('savedModal').classList.add('active'); renderModalItems(); }
 
 function closeSavedModal() {
     savedRecallList.forEach(item => {
@@ -1336,6 +1328,16 @@ function attachFirestoreListeners() {
     });
 }
 
+function closePairsManagerModal() {
+    document.getElementById('pairsManagerModal').classList.remove('active');
+}
+
+async function directSwitchPair(targetId) {
+    await activatePair(targetId);
+    closePairsManagerModal();
+    await postPairActivation();
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // IMPORT / EXPORT
 // ═══════════════════════════════════════════════════════════════════
@@ -1415,15 +1417,6 @@ async function importData() {
 // Priority: URL param ?pair=X → localStorage activePairId → onboarding screen
 // ═══════════════════════════════════════════════════════════════════
 async function init() {
-    // DEBUG BANNER — remove after confirming boot sequence works
-    const debugBanner = document.createElement('div');
-    debugBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#333;color:#0f0;font-family:monospace;font-size:11px;padding:6px 10px;z-index:9999;white-space:pre-wrap;';
-    const urlPair   = new URLSearchParams(window.location.search).get('pair');
-    const lsPair    = localStorage.getItem('activePairId');
-    debugBanner.textContent = `URL pair: ${urlPair}\nLS pair:  ${lsPair}\nHref: ${location.href}`;
-    document.body.appendChild(debugBanner);
-    setTimeout(() => debugBanner.remove(), 10000);
-
     // Load persisted UI preferences first so theme applies immediately
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
