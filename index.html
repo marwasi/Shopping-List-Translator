@@ -336,7 +336,7 @@ const DARK_THEMES      = ['monochrome-high','midnight-abyss','cyber-punk'];
 const THEMES           = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
 const AVATAR_OPTIONS   = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
 const DEFAULT_CATEGORIES = 'Produce, Meat, Dairy, Pantry, General';
-const PAIR_CODE_RE     = /^[A-Z2-9]{5}$/;  // valid pair code pattern
+const PAIR_CODE_RE     = /^[A-Z0-9]{5}$/;  // valid pair code pattern
 
 // ═══════════════════════════════════════════════════════════════════
 // FIREBASE
@@ -1408,6 +1408,15 @@ async function importData() {
 // Priority: URL param ?pair=X → localStorage activePairId → onboarding screen
 // ═══════════════════════════════════════════════════════════════════
 async function init() {
+    // DEBUG BANNER — remove after confirming boot sequence works
+    const debugBanner = document.createElement('div');
+    debugBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#333;color:#0f0;font-family:monospace;font-size:11px;padding:6px 10px;z-index:9999;white-space:pre-wrap;';
+    const urlPair   = new URLSearchParams(window.location.search).get('pair');
+    const lsPair    = localStorage.getItem('activePairId');
+    debugBanner.textContent = `URL pair: ${urlPair}\nLS pair:  ${lsPair}\nHref: ${location.href}`;
+    document.body.appendChild(debugBanner);
+    setTimeout(() => debugBanner.remove(), 10000);
+
     // Load persisted UI preferences first so theme applies immediately
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
