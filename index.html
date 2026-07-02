@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -1444,6 +1444,7 @@ async function init() {
     if (resolvedPairId) {
         // Returning session or bookmarked URL — boot straight in
         await activatePair(resolvedPairId);
+        hideOnboarding();
         await postPairActivation();
 
         // Clear stale edit locks from prior sessions
