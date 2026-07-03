@@ -112,7 +112,7 @@
                 <div id="currentUserDisplay" class="current-user-display">🛒 User</div>
                 <div id="pairCodeDisplay" class="pair-code-display">
                     Pair: <span id="pairCodeLabel">——</span>
-                    <button class="pair-code-copy-btn" onclick="copyPairCode()">Copy</button>
+<button class="pair-code-copy-btn" onclick="copyPairCode()">Copy Link</button>
                 </div>
             </div>
             <div class="header-right-stack">
@@ -250,14 +250,10 @@
 
     <div id="profileModal" class="modal-overlay">
         <div class="modal-content" style="max-width:340px;">
-            <div id="profileModalCloseRow" style="display:none; justify-content:flex-end; margin-bottom:-6px;">
-                <span id="profileModalCloseBtn" style="cursor:pointer; font-size:24px; opacity:0.6; line-height:1; padding:2px 4px;"
-                      onclick="document.getElementById('profileModal').classList.remove('active')">×</span>
-            </div>
             <h3 style="text-align:center; margin-top:0; color:var(--accent);">Your Profile</h3>
             <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:0.7; margin-top:-8px; margin-bottom:14px;"></p>
             <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:6px;">Your Name:</label>
-            <input type="text" id="profileNameInput" class="row-input" placeholder="Type name or pair code..." style="width:95%; margin-bottom:15px;">
+            <input type="text" id="profileNameInput" class="row-input" placeholder="Type name..." style="width:95%; margin-bottom:15px;">
             <label style="font-size:14px; font-weight:bold; display:block;">Choose an Avatar:</label>
             <div class="emoji-grid" id="profileEmojiGrid"></div>
             <button class="modal-close-btn" onclick="saveProfile()">Save Profile</button>
@@ -364,7 +360,8 @@
     }
 
     function copyPairCode() {
-        navigator.clipboard.writeText(activePairId).then(() => {
+        const link = `https://marwasi.github.io/Shopping-List-Translator/?pair=${activePairId}`;
+        navigator.clipboard.writeText(link).then(() => {
             const lbl  = document.getElementById('pairCodeLabel');
             const orig = lbl.textContent;
             lbl.textContent = 'Copied!';
@@ -533,21 +530,21 @@
                 return;
             }
         }
-        try {
-            const snap = await globalUsersRef.doc(DEVICE_ID).get();
+try {
+            // Try global users collection first
+            let snap = await globalUsersRef.doc(DEVICE_ID).get();
+            if (!snap.exists) {
+                // Fallback: check pair-scoped users in case deviceId changed
+                snap = await col('users').doc(DEVICE_ID).get();
+            }
             if (snap.exists) {
                 userProfile = snap.data();
                 localStorage.setItem('userProfile', JSON.stringify(userProfile));
                 updateHeaderProfileDisplay();
                 return;
             }
-        } catch (e) {
-            console.warn('Global profile lookups uninitialized:', e);
-        }
-        // If a pair code exists the user is returning — make profile modal dismissible
-        // so existing list data isn't blocked behind a hard registration gate.
-        const hasPairCode = !!localStorage.getItem('activePairId');
-        openProfileModal('Set up your profile to get started.', hasPairCode);
+        } catch (e) { console.warn('Profile lookup failed:', e); }
+        openProfileModal('Welcome! Set up your profile to get started.');
     }
 
     let modalCategoryState = []; // Tracks internal modal modifications [{name: 'Produce', active: true}]
@@ -649,7 +646,7 @@
         closeCategoryModal();
     }
 
-    function openProfileModal(subtext = '', dismissible = false) {
+    function openProfileModal(subtext = '') {
         const grid = document.getElementById('profileEmojiGrid');
         grid.innerHTML = AVATAR_OPTIONS.map(emoji =>
             `<button class="emoji-option ${emoji === selectedProfileEmoji ? 'selected' : ''}"
@@ -658,9 +655,6 @@
         document.getElementById('profileNameInput').value =
             userProfile.name !== 'User' ? userProfile.name : '';
         document.getElementById('profileModalSubtext').textContent = subtext;
-        // Show X close button only when dismissible (returning user, data already exists)
-        const closeRow = document.getElementById('profileModalCloseRow');
-        if (closeRow) closeRow.style.display = dismissible ? 'flex' : 'none';
         document.getElementById('profileModal').classList.add('active');
     }
 
@@ -707,10 +701,13 @@
             }
         }
 
-        userProfile = { name, icon: selectedProfileEmoji };
+userProfile = { name, icon: selectedProfileEmoji };
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
-        try { await globalUsersRef.doc(DEVICE_ID).set(userProfile); }
-        catch (e) { console.warn('Global profile save failed:', e); }
+        // Save under deviceId (primary) AND under pair+deviceId (fallback for new sessions)
+        try {
+            await globalUsersRef.doc(DEVICE_ID).set(userProfile);
+            await col('users').doc(DEVICE_ID).set(userProfile);
+        } catch (e) { console.warn('Profile save failed:', e); }
         updateHeaderProfileDisplay();
         document.getElementById('profileModal').classList.remove('active');
         renderList();
