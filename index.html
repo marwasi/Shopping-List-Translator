@@ -98,6 +98,10 @@
         .modal-swipe-row { position: relative; overflow: hidden; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px; }
         .swipe-delete-bg { position: absolute; top: 0; right: 0; bottom: 0; width: 80px; background: #dc3545; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
         .swipe-content { position: relative; z-index: 2; background: var(--card); display: flex; align-items: center; padding: 8px; transition: transform 0.2s; touch-action: pan-y; }
+        .find-replace-container { display: none; margin: 10px; padding: 12px; background: var(--card); border: 1px solid var(--col); border-radius: 8px; gap: 8px; flex-direction: column; }
+        .find-replace-row { display: flex; gap: 8px; }
+        .find-replace-btn { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; background: var(--col); color: var(--text); border: none; border-radius: 4px; cursor: pointer; }
+        .find-replace-btn:active { background: rgba(255,255,255,0.1); }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -220,9 +224,24 @@
             <button class="dropdown-action-btn" onclick="toggleCategoryView(); toggleActionsDropdown();">
                 🗂️ <span id="catToggleTopLabel">Hide</span> Category
             </button>
+            <button class="dropdown-action-btn" onclick="toggleFindReplaceBar(); toggleActionsDropdown();">
+                🔍 Find & Replace
+            </button>
             <button class="dropdown-action-btn" onclick="openSavedModal(); toggleActionsDropdown();">
                 ⭐ Favorites
             </button>
+        </div>
+    </div>
+
+    <!-- Find and Replace Control Panel -->
+    <div id="findReplaceBar" class="find-replace-container">
+        <div class="find-replace-row">
+            <input type="text" id="findText" class="row-input" placeholder="Find text...">
+            <input type="text" id="replaceText" class="row-input" placeholder="Replace with...">
+        </div>
+        <div class="find-replace-row">
+            <button class="find-replace-btn" onclick="executeFindAndReplace('l1')">In Lang 1</button>
+            <button class="find-replace-btn" onclick="executeFindAndReplace('l2')">In Lang 2</button>
         </div>
     </div>
 
@@ -1210,6 +1229,48 @@ userProfile = { name, icon: selectedProfileEmoji };
         document.querySelectorAll('#filterBar .chip').forEach(el => el.style.background = 'var(--col)');
         if (btnEl) btnEl.style.background = 'var(--accent)';
         renderList();
+    }
+
+    function toggleFindReplaceBar() {
+        const bar = document.getElementById('findReplaceBar');
+        bar.style.display = bar.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    async function executeFindAndReplace(field) {
+        const findStr = document.getElementById('findText').value.trim();
+        const replaceStr = document.getElementById('replaceText').value;
+
+        if (!findStr) {
+            alert('Please enter a target string to search for.');
+            return;
+        }
+
+        const escapedFind = findStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(escapedFind, 'g');
+        let matchCount = 0;
+        const batch = db.batch();
+
+        currentItems.forEach(item => {
+            const currentValue = item[field] || '';
+            if (regex.test(currentValue)) {
+                const newValue = currentValue.replace(regex, replaceStr);
+                matchCount++;
+                batch.update(col('activeList').doc(item.id), { [field]: newValue });
+            }
+        });
+
+        if (matchCount === 0) {
+            alert(`No matches found for "${findStr}".`);
+            return;
+        }
+
+        if (confirm(`Apply replacement to ${matchCount} matching item(s)?`)) {
+            await batch.commit();
+            document.getElementById('findText').value = '';
+            document.getElementById('replaceText').value = '';
+            toggleFindReplaceBar();
+            alert('List updated successfully!');
+        }
     }
 
     function updateFilterBar() {
