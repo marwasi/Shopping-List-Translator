@@ -12,16 +12,22 @@
         .monochrome-high       { --bg:#000;    --card:#121212; --col:#333;    --text-muted:#a0a0a0; --text:#fff; --accent:#fff; }
         .midnight-abyss        { --bg:#0B0F19; --card:#161F33; --col:#243352; --text-muted:#475E88; --text:#8FA7D1; --accent:#C2D1E8; }
         .cyber-punk            { --bg:#1A0B2E; --card:#2B144D; --col:#442375; --text-muted:#834BB3; --text:#C39BE6; --accent:#EAD6FF; }
-
+        /* ── LIGHT MODE VARIANTS — real palettes, not a filter hack ── */
+        .light-mode.nordic-frost      { --bg:#f4f6f8; --card:#ffffff; --col:#d7dee5; --text-muted:#5b6672; --text:#1e222a; --accent:#2f80ed; }
+        .light-mode.material-charcoal { --bg:#fafafa; --card:#ffffff; --col:#e0e0e0; --text-muted:#616161; --text:#121212; --accent:#018786; }
+        .light-mode.dracula-classic   { --bg:#f8f8f2; --card:#ffffff; --col:#dcdcc9; --text-muted:#6272a4; --text:#282a36; --accent:#1f9d4c; }
+        .light-mode.monochrome-high   { --bg:#ffffff; --card:#f2f2f2; --col:#cccccc; --text-muted:#555555; --text:#000000; --accent:#000000; }
+        .light-mode.midnight-abyss    { --bg:#eef2f9; --card:#ffffff; --col:#c7d3e8; --text-muted:#47618a; --text:#0b0f19; --accent:#33528a; }
+        .light-mode.cyber-punk        { --bg:#f7f0ff; --card:#ffffff; --col:#dfc9ff; --text-muted:#7a4bb3; --text:#1a0b2e; --accent:#8b3fd1; }
         *, *::before, *::after { box-sizing: border-box; }
         body { background:var(--bg); color:var(--text); font-family:sans-serif; transition:background .2s,color .2s; padding:20px; margin:0; padding-bottom:90px; overflow-x:hidden; }
         .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; font-size:20px; vertical-align:middle; line-height:1; }
-
         /* ── HEADER ── */
         .header-container      { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; position:relative; }
-        .header-top-row        { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-        .header-title-block    { min-width:0; flex-shrink:1; }
-        .header-title-block h2 { margin:0; font-size:24px; color:var(--accent); }
+        .header-top-row        { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; position:relative; }
+        .header-title-block    { flex:1; min-width:0; }
+        .header-title-block h2 { position:absolute; left:50%; top:0; transform:translateX(-50%); margin:0!important; z-index:0; pointer-events:none; }
+        .header-title-block h2 { margin:0; font-size:18px; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
         .header-right-stack    { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
         .header-actions-row    { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
         .main-toggle-btn       { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text); padding:2px; display:inline-flex; align-items:center; }
@@ -29,7 +35,6 @@
         .current-user-display  { font-size:14px; opacity:.85; margin-top:2px; display:inline-flex; align-items:center; gap:6px; font-weight:500; }
         .pair-code-display     { font-size:11px; opacity:.55; margin-top:2px; font-family:monospace; letter-spacing:.5px; display:flex; align-items:center; gap:6px; }
         .pair-code-copy-btn    { background:none; border:1px solid var(--col); color:var(--text-muted); font-size:10px; padding:1px 5px; border-radius:3px; cursor:pointer; }
-
         /* ── DROPDOWNS ── */
         .dropdown-menu         { display:none; position:absolute; right:0; top:38px; background:var(--card); border:1px solid var(--col); padding:12px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,.4); z-index:500; min-width:220px; }
         .dropdown-menu label   { display:block; margin-bottom:10px; font-size:14px; font-weight:bold; color:var(--accent); }
@@ -40,17 +45,14 @@
         .settings-input        { width:100%; margin-top:4px; padding:5px; background:var(--bg); color:var(--text); border:1px solid var(--col); border-radius:4px; }
         .dropdown-action-btn   { width:100%; display:flex; align-items:center; gap:8px; background:none; border:none; color:var(--text); padding:9px 4px; font-size:13px; cursor:pointer; text-align:left; border-radius:4px; }
         .dropdown-action-btn:active { background:rgba(255,255,255,.06); }
-
         /* ── GRID HEADER ── */
         .grid-header { display:flex; align-items:center; font-weight:bold; padding:6px 10px; border-bottom:2px solid var(--col); font-size:13px; color:var(--accent); position:relative; z-index:100; }
         .h-item  { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:4px; }
         .h-trans { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-left:8px; font-size:11px; opacity:.7; }
-
         /* ── DRAGGABLE DIVIDER ── */
         .col-divider { width:28px; flex-shrink:0; cursor:col-resize; display:flex; align-items:center; justify-content:center; color:var(--col); font-size:13px; user-select:none; -webkit-user-select:none; touch-action:none; border-radius:4px; padding:2px 0; }
         .col-divider:hover { color:var(--accent); background:rgba(255,255,255,.05); }
         .col-divider.dragging { color:var(--accent); background:rgba(255,255,255,.08); }
-
         /* ── SWIPE ROWS ── */
         .swipe-wrapper    { position:relative; width:100%; overflow:hidden; border-bottom:1px solid var(--col); background:var(--bg); }
         .swipe-background { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; z-index:1; pointer-events:auto; }
@@ -60,21 +62,18 @@
         .col-item  { overflow:hidden; display:flex; align-items:center; flex-shrink:0; padding-right:4px; }
         .col-item span  { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px; }
         .col-trans { overflow:hidden; flex:1; padding-left:8px; border-left:1px solid var(--col); display:flex; align-items:center; }
-        .col-trans span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; color:var(--text-muted); }
-
+        .col-trans span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:var(--trans-font-size, 11px); color:var(--text-muted); }
+        .trans-font-btn { background:none; border:1px solid var(--col); color:var(--text-muted); font-size:11px; width:18px; height:18px; line-height:1; border-radius:3px; cursor:pointer; padding:0; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
         /* ── UNDO TRAY ── */
         .undo-tray { display:flex; justify-content:space-between; align-items:center; padding:12px 15px; background:#dc3545; color:#fff; font-weight:bold; font-size:14px; border-bottom:1px solid var(--col); animation:fadeIn .2s ease-in-out; }
         .undo-btn  { background:#fff; color:#dc3545; border:none; padding:6px 12px; font-weight:bold; border-radius:4px; cursor:pointer; font-size:13px; }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
         /* ── SCRATCH-THROUGH ── */
         .scratch-through { position:relative; color:var(--text-muted)!important; opacity:.6; }
         .scratch-through::after { content:""; position:absolute; left:-2px; right:-2px; top:50%; height:6px; transform:translateY(-50%); background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 4" width="20" height="4" preserveAspectRatio="none"><path d="M0,2 Q3,0 6,2 T12,2 T18,2 T20,2" fill="none" stroke="%23dc3545" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'); background-repeat:repeat-x; background-size:20px 100%; pointer-events:none; }
-
         /* ── UTILITIES ── */
         .row-input { width:100%; padding:7px; border:1px solid var(--col); border-radius:4px; background:var(--bg); color:var(--text); font-size:15px; }
         .fab { position:fixed; bottom:30px; right:30px; width:60px; height:60px; border-radius:50%; background:var(--accent); color:var(--bg); border:none; font-size:32px; font-weight:bold; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:99; }
-
         /* ── MODALS ── */
         .modal-overlay        { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:1000; justify-content:center; align-items:center; }
         .modal-overlay.active { display:flex; }
@@ -88,11 +87,9 @@
         .modal-swipe-row  { position:relative; overflow:hidden; background:rgba(255,255,255,.03); border-radius:6px; border:1px solid rgba(255,255,255,.05); margin-bottom:8px; }
         .swipe-delete-bg  { position:absolute; top:0; right:0; bottom:0; width:80px; background:#dc3545; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:12px; }
         .swipe-content    { position:relative; z-index:2; background:var(--card); display:flex; align-items:center; padding:8px; transition:transform .2s; touch-action:pan-y; }
-
         /* ── FILTER BAR ── */
         #filterBar { display:flex; gap:8px; padding:8px 0; overflow-x:auto; }
         #filterBar .chip { padding:5px 12px; border-radius:20px; border:none; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap; }
-
         /* ── AI LOG PANEL ── */
         #aiLogPanel {
             display:none; position:fixed; bottom:0; left:0; right:0;
@@ -120,38 +117,45 @@
         .badge-ai     { background:#6c5ce7; color:#fff; }
         .badge-miss   { background:#e67e22; color:#fff; }
         .badge-init   { background:#0984e3; color:#fff; }
-
         /* ── STALE PAIR WARNING ── */
         .pair-stale { border-color:#e67e22!important; }
     </style>
-
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="nordic-frost">
-
 <!-- ═══════════════════════════ HEADER ══ -->
 <div class="header-container">
     <div class="header-top-row">
+        <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
+            <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
+            <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
+        </div>
         <div class="header-title-block">
             <h2>Shopping Translator</h2>
-            <div id="currentUserDisplay" class="current-user-display">🛒 User</div>
-            <div id="pairCodeDisplay" class="pair-code-display">
-                Pair: <span id="pairCodeLabel">——</span>
-                <button class="pair-code-copy-btn" onclick="copyMyPairLink()">Copy Link</button>
+            <div id="currentUserDisplay" class="current-user-display" style="display:flex; align-items:center; gap:8px; font-size:13px; margin-top:26px; position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap;">
+                <span style="display:flex; align-items:center; gap:4px;">
+                    <span id="onlineIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#00ff00; flex-shrink:0;"></span>
+                     <span id="userNameDisplay">User</span>
+                    <button class="pair-code-copy-btn" onclick="copyMyPairLink()" title="Copy my invite link">🔗</button>
+                </span>
+                <span style="opacity:.5;">|</span>
+                <span onclick="openMembersModal()" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <span id="partnerOnlineIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#888; flex-shrink:0;"></span>
+                    <span id="partnerNameDisplay" style="opacity:.7;">—</span>
+                    <button onclick="event.stopPropagation(); openPartnerLinkModal();" title="Invite partner" class="pair-code-copy-btn">🔗</button>
+                </span>
             </div>
         </div>
         <div class="header-right-stack">
             <div class="header-actions-row">
-                <button class="main-toggle-btn" onclick="toggleAiLog()" title="AI Activity Log" id="aiLogBtn">✨</button>
-                <button class="main-toggle-btn" onclick="cycleThemeCollection()" title="Cycle Themes">
+                <button class="main-toggle-btn" onclick="toggleThemeMode()" title="Toggle Light/Dark Mode">
                     <span class="material-symbols-outlined" id="themeIconGlyph">light_mode</span>
                 </button>
                 <button class="kebab-btn" onclick="toggleDropdown()">⋮</button>
             </div>
         </div>
     </div>
-
     <!-- ── SETTINGS DROPDOWN ── -->
     <div id="settingsDropdown" class="dropdown-menu">
         <label>Theme Color
@@ -164,12 +168,10 @@
                 <option value="cyber-punk">Cyber Punk</option>
             </select>
         </label>
-
         <label style="margin-top:10px; display:block;">List Categories
             <input type="text" id="settingsCategories" readonly onclick="openCategoryModal()"
                    placeholder="Tap to manage..." class="settings-input" style="cursor:pointer; caret-color:transparent;">
         </label>
-
         <div class="submenu-container">
             <div class="submenu-title"><span>Translation Config</span> 🌐</div>
             <label style="font-size:12px; margin-bottom:6px; display:block;">Lang 1
@@ -185,7 +187,6 @@
                 </select>
             </label>
         </div>
-
         <div class="submenu-container" style="margin-top:8px;">
             <div class="submenu-title"><span>Pair Code</span> 🔗</div>
             <div style="font-size:11px; opacity:.7; margin-bottom:6px;">Enter a code to switch pairs.</div>
@@ -195,13 +196,15 @@
                 🔀 Switch / Join Pair
             </button>
         </div>
-
         <hr style="border:0; border-top:1px solid var(--col); margin:12px 0;">
         <button onclick="openPartnerLinkModal()" style="width:100%; margin-bottom:8px; font-size:12px; font-weight:bold; background:var(--accent); color:var(--bg); border:none; padding:9px; border-radius:4px; cursor:pointer;">
             🔗 Generate Partner Link
         </button>
         <button onclick="openPairsManagerModal()" style="width:100%; margin-bottom:8px; font-size:12px; font-weight:bold; background:var(--col); color:var(--text); border:none; padding:9px; border-radius:4px; cursor:pointer;">
             📋 View &amp; Manage Pairs
+        </button>
+        <button onclick="openMembersModal()" style="width:100%; margin-bottom:8px; font-size:12px; font-weight:bold; background:var(--col); color:var(--text); border:none; padding:9px; border-radius:4px; cursor:pointer;">
+            👥 View Pair Members
         </button>
         <div style="display:flex; gap:6px; margin-bottom:8px;">
             <button onclick="exportData()" style="flex:1; font-size:12px; font-weight:bold; background:var(--col); color:var(--text); border:none; padding:8px; border-radius:4px; cursor:pointer;">⬆️ Export</button>
@@ -210,21 +213,27 @@
         <button class="reset-profile-btn" onclick="deleteAndResetUser()">🗑️ Reset My Profile</button>
     </div>
 </div>
-
 <!-- ── FILTER BAR ── -->
 <div id="filterBar">
     <button class="chip" onclick="setFilter('All',this)" style="background:var(--accent); color:var(--bg);">All</button>
 </div>
-
 <!-- ── GRID HEADER ── -->
 <div class="grid-header" id="gridHeader">
     <div id="header-col1" class="h-item">Item (Qty)</div>
     <div class="col-divider" id="colDivider">⋮</div>
-    <div id="header-col2" class="h-trans">Translation</div>
+    <div id="header-col2" class="h-trans" style="display:flex; align-items:center; gap:4px;">
+        <span id="header-col2-label" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Translation</span>
+        <button class="trans-font-btn" onclick="adjustTransFontSize(-1)" title="Smaller translation text">−</button>
+        <button class="trans-font-btn" onclick="adjustTransFontSize(1)" title="Larger translation text">+</button>
+    </div>
     <button id="catToggleBtn" onclick="toggleCategoryView()" title="Toggle categories"
-            style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 4px; margin-left:4px; flex-shrink:0; line-height:1;">🫣</button>
+            style="background:none; border:none; cursor:pointer; padding:0 4px; margin-left:4px; flex-shrink:0; line-height:1;">
+        <span class="material-symbols-outlined" id="catToggleIcon">unfold_more</span>
+    </button>
     <button onclick="openSavedModal()" title="Favorites"
             style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 4px; flex-shrink:0; line-height:1;">⭐</button>
+    <button onclick="toggleAiLog()" title="AI Activity Log" id="aiLogBtn"
+            style="background:none; border:none; font-size:18px; cursor:pointer; padding:0 4px; flex-shrink:0; line-height:1;">✨</button>
     <button class="kebab-btn" onclick="toggleActionsDropdown()" style="margin-left:2px;">⋮</button>
     <div id="actionsDropdown" class="dropdown-menu" style="min-width:180px;">
         <button class="dropdown-action-btn" onclick="clearEntireActiveList(); toggleActionsDropdown();">🗑️ Delete All</button>
@@ -233,10 +242,8 @@
         <button class="dropdown-action-btn" onclick="restoreAllCompleted(); toggleActionsDropdown();">✔️ Restore Completed</button>
     </div>
 </div>
-
 <div id="itemList"></div>
 <button class="fab" onclick="createNewBlankRow()">+</button>
-
 <!-- ═══ AI LOG PANEL ══ -->
 <div id="aiLogPanel">
     <div class="ai-log-header">
@@ -250,7 +257,6 @@
         <p style="opacity:.4; font-family:sans-serif; font-size:12px; text-align:center; margin-top:20px;">No AI activity yet. Add an item to the list and watch what happens here.</p>
     </div>
 </div>
-
 <!-- ═══ CATEGORY MANAGER MODAL ══ -->
 <div id="categoryManagerModal" class="modal-overlay">
     <div class="modal-content" style="max-width:340px;">
@@ -266,7 +272,6 @@
         <button class="modal-close-btn" onclick="saveCategoryModalChanges()">Save Categories</button>
     </div>
 </div>
-
 <!-- ═══ PROFILE MODAL ══ -->
 <div id="profileModal" class="modal-overlay">
     <div class="modal-content" style="max-width:340px;">
@@ -283,7 +288,6 @@
         <button class="modal-close-btn" onclick="saveProfile()">Save Profile</button>
     </div>
 </div>
-
 <!-- ═══ PARTNER LINK MODAL ══ -->
 <div id="partnerLinkModal" class="modal-overlay">
     <div class="modal-content" style="max-width:360px;">
@@ -305,7 +309,23 @@
         </div>
     </div>
 </div>
-
+<!-- ═══ MEMBERS MODAL (current pair only) ══ -->
+<div id="membersModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:360px;">
+        <div class="modal-header">
+            <h3>Pair Members</h3>
+            <span style="cursor:pointer; font-size:20px;" onclick="closeMembersModal()">×</span>
+        </div>
+        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:6px;">Pair Name</label>
+        <input type="text" id="pairNameInput" placeholder="Unnamed pair" maxlength="40"
+               class="settings-input" style="margin-bottom:14px;" onblur="savePairName(this.value)"
+               onkeydown="if(event.key==='Enter'){this.blur();}">
+        <p style="font-size:12px; opacity:.6; margin-top:-4px; margin-bottom:12px;">
+            This pair is capped at 2 members. Remove someone who's gone to free their slot.
+        </p>
+        <div id="membersList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+</div>
 <!-- ═══ SAVED SHORTCUTS / FAVORITES MODAL ══ -->
 <div id="savedModal" class="modal-overlay">
     <div class="modal-content">
@@ -320,7 +340,6 @@
         <button class="modal-close-btn" onclick="closeSavedModal()">Add Selected to Shopping List</button>
     </div>
 </div>
-
 <!-- ═══ PAIRS MANAGER MODAL ══ -->
 <div id="pairsManagerModal" class="modal-overlay">
     <div class="modal-content" style="max-width:360px;">
@@ -335,7 +354,6 @@
         <button class="modal-close-btn" style="background:var(--col); color:var(--text);" onclick="closePairsManagerModal()">Close</button>
     </div>
 </div>
-
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -349,7 +367,6 @@ const AVATAR_OPTIONS = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','
 const APP_BASE_URL   = 'https://marwasi.github.io/Shopping-List-Translator/';
 const ONE_WEEK_MS    = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_CATEGORIES = 'Fresh Produce, Meat & Poultry, Seafood, Dairy, Bakery, Grains & Pasta, Canned Goods, Frozen Foods, Snacks, Beverages, Condiments & Sauces, Breakfast Items, Household Essentials, Personal Care, Specialty Foods, Pharmacy, General';
-
 // ═══════════════════════════════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════════════════════════════
@@ -363,15 +380,12 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 const globalUsersRef = db.collection('users');
 const globalPairsRef = db.collection('pairs');
-
 // ═══════════════════════════════════════════════════════════════════
 // AI LOG — plain-English activity feed shown in the ✨ panel
 // ═══════════════════════════════════════════════════════════════════
 let aiLogEntries = [];
-
 function logAiEvent({ item, sent, received, category, type = 'success', plain }) {
     const entry = { item, sent, received, category, type, plain, time: new Date() };
     aiLogEntries.unshift(entry);      // newest first
@@ -382,7 +396,6 @@ function logAiEvent({ item, sent, received, category, type = 'success', plain })
     btn.style.transform = 'scale(1.4)';
     setTimeout(() => { btn.style.transform = ''; }, 300);
 }
-
 function refreshAiLogPanel() {
     const body = document.getElementById('aiLogBody');
     if (!body) return;
@@ -404,21 +417,27 @@ function refreshAiLogPanel() {
             </div>`;
     }).join('');
 }
-
 function clearAiLog() {
     aiLogEntries = [];
     refreshAiLogPanel();
 }
-
 function toggleAiLog() {
     document.getElementById('aiLogPanel').classList.toggle('active');
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // COLUMN SPLIT — draggable divider, persisted to localStorage
 // ═══════════════════════════════════════════════════════════════════
 let splitPct = parseFloat(localStorage.getItem('colSplitPct') || '60');
-
+// TRANSLATION COLUMN FONT SIZE — persisted to localStorage
+let transFontSize = parseFloat(localStorage.getItem('transFontSize') || '11');
+function applyTransFontSize() {
+    document.documentElement.style.setProperty('--trans-font-size', `${transFontSize}px`);
+}
+function adjustTransFontSize(delta) {
+    transFontSize = Math.max(9, Math.min(22, transFontSize + delta));
+    localStorage.setItem('transFontSize', transFontSize);
+    applyTransFontSize();
+}
 function applySplit() {
     const transPct = 100 - splitPct;
     const p = splitPct.toFixed(0), t = transPct.toFixed(0);
@@ -427,15 +446,29 @@ function applySplit() {
     document.documentElement.style.setProperty('--col-primary-pct', `${p}%`);
     document.documentElement.style.setProperty('--col-trans-pct',   `${t}%`);
 }
-
 function initDividerDrag() {
     const divider = document.getElementById('colDivider');
-    let dragging = false, startX = 0, startPct = splitPct;
-
+    let dragging = false, startX = 0, startPct = splitPct, tooltip = null;
+    const showTooltip = (clientX) => {
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.style.cssText = 'position:fixed; background:var(--accent); color:var(--bg); padding:6px 10px; border-radius:4px; font-size:12px; font-weight:bold; z-index:999; pointer-events:none; white-space:nowrap;';
+            document.body.appendChild(tooltip);
+        }
+        const pctLeft = splitPct.toFixed(0);
+        const pctRight = (100 - splitPct).toFixed(0);
+        tooltip.textContent = `${pctLeft}% | ${pctRight}%`;
+        tooltip.style.left = (clientX - 40) + 'px';
+        tooltip.style.top = (30) + 'px';
+    };
+    const hideTooltip = () => {
+        if (tooltip) { tooltip.remove(); tooltip = null; }
+    };
     const onStart = clientX => {
         dragging = true; startX = clientX; startPct = splitPct;
         divider.classList.add('dragging');
         document.body.style.cursor = 'col-resize';
+        showTooltip(clientX);
     };
     const onMove = clientX => {
         if (!dragging) return;
@@ -443,18 +476,16 @@ function initDividerDrag() {
         const delta = ((clientX - startX) / w) * 100;
         splitPct = Math.max(30, Math.min(80, startPct + delta));
         applySplit();
-        // Show live percentage while dragging
-        divider.textContent = `${splitPct.toFixed(0)}%|${(100-splitPct).toFixed(0)}%`;
+        showTooltip(clientX);
     };
     const onEnd = () => {
         if (!dragging) return;
         dragging = false;
         divider.classList.remove('dragging');
-        divider.textContent = '⋮';
         document.body.style.cursor = '';
         localStorage.setItem('colSplitPct', splitPct.toFixed(1));
+        hideTooltip();
     };
-
     divider.addEventListener('touchstart', e => { e.preventDefault(); onStart(e.touches[0].clientX); }, { passive: false });
     document.addEventListener('touchmove',  e => { if(dragging){ e.preventDefault(); onMove(e.touches[0].clientX); } }, { passive: false });
     document.addEventListener('touchend',   () => onEnd());
@@ -462,7 +493,6 @@ function initDividerDrag() {
     document.addEventListener('mousemove',  e => onMove(e.clientX));
     document.addEventListener('mouseup',    () => onEnd());
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // URL HELPERS
 // ═══════════════════════════════════════════════════════════════════
@@ -472,22 +502,18 @@ function emojiToUnicode(emoji) {
         return cp > 0x7F ? `U+${cp.toString(16).toUpperCase()}` : c;
     }).join('');
 }
-
 function unicodeToEmoji(str) {
     return str.replace(/U\+([0-9A-Fa-f]+)/g, (_, hex) =>
         String.fromCodePoint(parseInt(hex, 16))
     );
 }
-
 function buildInviteUrl(pairId, name, icon) {
     const params = new URLSearchParams({ pair: pairId, name, icon: emojiToUnicode(icon) });
     return `${APP_BASE_URL}?${params.toString()}`;
 }
-
 function buildMyLink() {
     return buildInviteUrl(activePairId, userProfile.name, userProfile.icon);
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // IDENTITY
 // ═══════════════════════════════════════════════════════════════════
@@ -495,13 +521,11 @@ function generatePairCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     return Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
-
 function ensureDeviceId() {
     let id = localStorage.getItem('deviceId');
     if (!id) { id = crypto.randomUUID(); localStorage.setItem('deviceId', id); }
     return id;
 }
-
 function resolveBootParams() {
     const params  = new URLSearchParams(window.location.search);
     const urlPair = params.get('pair')?.toUpperCase().trim() || null;
@@ -515,16 +539,24 @@ function resolveBootParams() {
     if (!stored) { stored = generatePairCode(); localStorage.setItem('activePairId', stored); }
     return { pairId: stored, name: null, icon: null, profileFromUrl: false };
 }
-
 const DEVICE_ID = ensureDeviceId();
 let   activePairId = null;
 const col = (name) => globalPairsRef.doc(activePairId).collection(name);
-
 async function registerPair(pairId) {
-    // v2: registration gate
-    return true;
+    return await canJoinPair(pairId, DEVICE_ID);
 }
-
+const MAX_PAIR_MEMBERS = 2; // raise this later for group tenancy
+async function canJoinPair(pairId, deviceId) {
+    try {
+        const snap = await globalPairsRef.doc(pairId).collection('users').get();
+        const alreadyMember = snap.docs.some(d => d.id === deviceId);
+        if (alreadyMember) return true;
+        return snap.size < MAX_PAIR_MEMBERS;
+    } catch (e) {
+        console.warn('canJoinPair check failed, allowing by default:', e);
+        return true;
+    }
+}
 // ═══════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════
@@ -543,7 +575,7 @@ let lastDeletedCompletedSnapshot = null;
 let modalCategoryState           = [];
 let unsubActiveList              = null;
 let unsubSavedList               = null;
-
+let unsubUsers                   = null;
 // ═══════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════
@@ -552,15 +584,13 @@ function getParsedCategories() {
     if (!csv) return DEFAULT_CATEGORIES.split(',').map(c => c.trim());
     return csv.split(',').map(c => c.trim()).filter(Boolean);
 }
-
 function updateHeaderProfileDisplay() {
-    document.getElementById('currentUserDisplay').textContent = `${userProfile.icon} ${userProfile.name}`;
+    const nameEl = document.getElementById('userNameDisplay');
+    if (nameEl) nameEl.textContent = `${userProfile.icon} ${userProfile.name}`;
 }
-
 function updatePairCodeDisplay() {
     document.getElementById('pairCodeLabel').textContent = activePairId || '——';
 }
-
 function copyMyPairLink() {
     const link = buildMyLink();
     navigator.clipboard.writeText(link).then(() => {
@@ -570,27 +600,37 @@ function copyMyPairLink() {
         setTimeout(() => { lbl.textContent = orig; }, 1500);
     });
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // AI — GROQ VIA PROXY
 // Single clean prompt: classify + spell-check + fallback to General
 // Keyword lookup REMOVED — AI handles everything
 // ═══════════════════════════════════════════════════════════════════
-async function callGroqViaProxy(messages, maxTokens = 20) {
-    try {
-        const res = await fetch(PROXY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                service: 'groq', endpoint: GROQ_ENDPOINT,
-                payload: { model: GROQ_MODEL, messages, temperature: 0.1, max_tokens: maxTokens }
-            })
-        });
-        if (!res.ok) { console.error('Proxy error:', res.status); return null; }
-        return await res.json();
-    } catch (e) { console.error('Proxy failed:', e); return null; }
+async function callGroqViaProxy(messages, maxTokens = 20, retries = 2) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const res = await fetch(PROXY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    service: 'groq', endpoint: GROQ_ENDPOINT,
+                    payload: { model: GROQ_MODEL, messages, temperature: 0.1, max_tokens: maxTokens }
+                }),
+                signal: AbortSignal.timeout(10000) // 10s timeout
+            });
+            if (!res.ok) { 
+                console.error(`Proxy error (attempt ${attempt + 1}): ${res.status}`);
+                if (attempt < retries) { await new Promise(r => setTimeout(r, 1000)); continue; }
+                return null; 
+            }
+            return await res.json();
+        } catch (e) { 
+            console.error(`Proxy failed (attempt ${attempt + 1}):`, e.message);
+            if (attempt < retries) { await new Promise(r => setTimeout(r, 1000)); continue; }
+            return null; 
+        }
+    }
+    return null;
 }
-
 /**
  * Ask AI to classify a grocery item into one of the configured categories.
  * The prompt tells it to spell-check if unsure, and fall back to General.
@@ -602,9 +642,7 @@ async function classifyItem(itemText, context = 'new') {
         {
             role: 'system',
             content: `You are a friendly grocery store assistant. Your job is to sort items into the correct aisle.
-
 The available aisles are: ${cats.join(', ')}.
-
 Instructions:
 1. Read the item name (it may be in English or Thai).
 2. Decide which aisle it belongs to.
@@ -614,20 +652,17 @@ Instructions:
         },
         { role: 'user', content: itemText }
     ];
-
     const data     = await callGroqViaProxy(messages, 20);
     const raw      = data?.choices?.[0]?.message?.content?.trim() || '';
     const matched  = cats.find(c => c.toLowerCase() === raw.toLowerCase()) || null;
     const category = matched || 'General';
     const type     = matched ? 'success' : 'fallback';
-
     // Plain-English explanation for the log panel
     const plain = matched
         ? `I recognised "${itemText}" and placed it in "${category}".`
         : raw
             ? `I got "${raw}" back from the AI but it didn't match any of your aisles, so I put it in General.`
             : `The AI didn't respond. The item went to General as a fallback.`;
-
     logAiEvent({
         item:     itemText,
         sent:     `Classify: "${itemText}"`,
@@ -638,10 +673,8 @@ Instructions:
             ? `[On startup] ${plain}`
             : plain
     });
-
     return category;
 }
-
 async function bulkCategorizeAll(e) {
     const btn = e.currentTarget, orig = btn.innerHTML;
     btn.innerHTML = '⏳ Sorting...'; btn.disabled = true;
@@ -666,7 +699,6 @@ async function bulkCategorizeAll(e) {
     } catch(err) { console.error(err); alert('Error connecting to AI proxy.'); }
     finally { btn.innerHTML = orig; btn.disabled = false; }
 }
-
 /**
  * Background recategorize items that are missing a category,
  * have 'General' (may have landed there as a fallback), or whose
@@ -688,7 +720,6 @@ async function backgroundRecategorize() {
         await col('activeList').doc(d.id).update({ category: cat });
     }
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // SETTINGS & DROPDOWNS
 // ═══════════════════════════════════════════════════════════════════
@@ -696,51 +727,44 @@ function toggleDropdown() {
     const m = document.getElementById('settingsDropdown');
     m.style.display = m.style.display === 'block' ? 'none' : 'block';
 }
-
 function toggleActionsDropdown() {
     const m = document.getElementById('actionsDropdown');
     m.style.display = m.style.display === 'block' ? 'none' : 'block';
 }
-
 document.addEventListener('click', e => {
     if (!e.target.matches('.kebab-btn') && !e.target.closest('.dropdown-menu')) {
         document.getElementById('settingsDropdown').style.display = 'none';
         document.getElementById('actionsDropdown').style.display  = 'none';
     }
 });
-
 function updateSettings() {
     const theme = document.getElementById('themeSelect').value;
     const lang1 = document.getElementById('lang1').value;
     const lang2 = document.getElementById('lang2').value;
     const cats  = document.getElementById('settingsCategories').value;
-    document.body.className = theme;
+    document.body.className = theme + (lightModeOn ? ' light-mode' : '');
     localStorage.setItem('appPrefs', JSON.stringify({ theme, lang1, lang2, categories: cats }));
 }
-
-function cycleThemeCollection() {
-    const cur  = document.getElementById('themeSelect').value;
-    const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
-    document.getElementById('themeSelect').value = next;
-    updateSettings();
-    updateThemeIconGlyph(next);
-}
-
-function updateThemeIconGlyph(theme) {
+let lightModeOn = localStorage.getItem('lightMode') === 'true';
+function toggleThemeMode() {
+    lightModeOn = !lightModeOn;
+    localStorage.setItem('lightMode', lightModeOn);
     const g = document.getElementById('themeIconGlyph');
-    if (g) g.textContent = DARK_THEMES.includes(theme) ? 'dark_mode' : 'light_mode';
+    if (g) g.textContent = lightModeOn ? 'dark_mode' : 'light_mode';
+    applyLightMode();
 }
-
+function applyLightMode() {
+    document.body.classList.toggle('light-mode', lightModeOn);
+}
 // ═══════════════════════════════════════════════════════════════════
 // CATEGORY TOGGLE
 // ═══════════════════════════════════════════════════════════════════
 function toggleCategoryView() {
     categoriesEnabled = !categoriesEnabled;
-    document.getElementById('catToggleBtn').textContent = categoriesEnabled ? '🫣' : '👁️';
+    document.getElementById('catToggleIcon').textContent = categoriesEnabled ? 'unfold_more' : 'unfold_less';
     document.getElementById('filterBar').style.display  = categoriesEnabled ? 'flex' : 'none';
     renderList();
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // PARTNER LINK MODAL
 // ═══════════════════════════════════════════════════════════════════
@@ -757,17 +781,14 @@ function openPartnerLinkModal() {
     ).join('');
     document.getElementById('partnerLinkModal').classList.add('active');
 }
-
 function closePartnerLinkModal() {
     document.getElementById('partnerLinkModal').classList.remove('active');
 }
-
 function selectPartnerEmoji(btnEl, emoji) {
     document.querySelectorAll('#partnerEmojiGrid .emoji-option').forEach(el => el.classList.remove('selected'));
     btnEl.classList.add('selected');
     selectedPartnerEmoji = emoji;
 }
-
 function generateAndCopyPartnerLink() {
     const name = document.getElementById('partnerNameInput').value.trim();
     if (!name) { alert("Please enter your partner's name."); return; }
@@ -779,13 +800,11 @@ function generateAndCopyPartnerLink() {
         if (btn) btn.textContent = '✅ Copied! Send to partner';
     }).catch(() => {});
 }
-
 function copyPartnerLinkText() {
     const ta = document.getElementById('partnerLinkText');
     ta.select();
     navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy'));
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // PAIR SWITCHING
 // ═══════════════════════════════════════════════════════════════════
@@ -796,13 +815,12 @@ function resetPairState() {
     localDeletedTimers = {}; lastClearedSnapshot = null;
     lastDeletedCompletedSnapshot = null; openSwipeId = null; currentFilter = 'All';
 }
-
 async function switchPair() {
     const input = document.getElementById('switchPairInput').value.trim().toUpperCase();
     if (!input || input.length < 3) { alert('Enter a valid pair code.'); return; }
     if (input === activePairId)     { alert('Already on this pair.'); return; }
     const allowed = await registerPair(input);
-    if (!allowed) { alert('Pair not found or access denied.'); return; }
+    if (!allowed) { alert(`Pair "${input}" already has ${MAX_PAIR_MEMBERS} members.`); return; }
     resetPairState();
     activePairId = input;
     localStorage.setItem('activePairId', activePairId);
@@ -814,7 +832,6 @@ async function switchPair() {
     await checkUserProfile();
     alert(`Switched to pair ${activePairId}`);
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // PAIRS MANAGER MODAL
 // ═══════════════════════════════════════════════════════════════════
@@ -823,7 +840,6 @@ function openPairsManagerModal() {
     const container = document.getElementById('pairsModalList');
     container.innerHTML = '<p style="text-align:center; opacity:.5; font-size:13px;">Loading...</p>';
     document.getElementById('pairsManagerModal').classList.add('active');
-
     globalPairsRef.get().then(snap => {
         if (snap.empty) { container.innerHTML = '<p style="text-align:center; opacity:.5; font-size:13px;">No pairs found.</p>'; return; }
         const now = Date.now();
@@ -837,7 +853,6 @@ function openPairsManagerModal() {
             const ageLabel = lastTs
                 ? (stale ? `⚠️ Last active ${Math.floor(ageMs/ONE_WEEK_MS)}w+ ago` : `✅ Active recently`)
                 : '❓ Unknown activity';
-
             html += `
                 <div style="padding:10px; background:rgba(255,255,255,.03); border-radius:6px;
                             border:1px solid ${cur?'var(--accent)':stale?'#e67e22':'var(--col)'};">
@@ -866,11 +881,9 @@ function openPairsManagerModal() {
         container.innerHTML = '<p style="text-align:center; color:#dc3545; font-size:12px;">Failed to load pairs.</p>';
     });
 }
-
 function closePairsManagerModal() {
     document.getElementById('pairsManagerModal').classList.remove('active');
 }
-
 async function directSwitchPair(targetId) {
     resetPairState();
     activePairId = targetId;
@@ -881,7 +894,6 @@ async function directSwitchPair(targetId) {
     closePairsManagerModal();
     renderList();
 }
-
 async function deletePair(pairId, btn) {
     if (pairId === activePairId) { alert("Can't delete the active pair."); return; }
     if (!confirm(`Permanently delete pair "${pairId}" and all its data?`)) return;
@@ -900,14 +912,23 @@ async function deletePair(pairId, btn) {
         btn.textContent = 'Delete'; btn.disabled = false;
     }
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // PROFILE
 // ═══════════════════════════════════════════════════════════════════
 async function checkUserProfile(injectName = null, injectIcon = null) {
     globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-
     if (injectName && injectIcon) {
+        const ok = await canJoinPair(activePairId, DEVICE_ID);
+        if (!ok) {
+            alert(`This pair (${activePairId}) already has ${MAX_PAIR_MEMBERS} members. Starting a new pair for you instead.`);
+            resetPairState();
+            activePairId = generatePairCode();
+            localStorage.setItem('activePairId', activePairId);
+            updatePairCodeDisplay();
+            attachFirestoreListeners();
+            openProfileModal('Welcome! Set up your profile.', false);
+            return;
+        }
         userProfile = { name: injectName, icon: injectIcon };
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
         globalUsersRef.doc(DEVICE_ID).set(userProfile, { merge: true });
@@ -915,7 +936,6 @@ async function checkUserProfile(injectName = null, injectIcon = null) {
         updateHeaderProfileDisplay();
         return;
     }
-
     const cached = localStorage.getItem('userProfile');
     if (cached) {
         const p = JSON.parse(cached);
@@ -927,7 +947,6 @@ async function checkUserProfile(injectName = null, injectIcon = null) {
             return;
         }
     }
-
     try {
         let snap = await globalUsersRef.doc(DEVICE_ID).get();
         if (!snap.exists) snap = await col('users').doc(DEVICE_ID).get();
@@ -938,11 +957,9 @@ async function checkUserProfile(injectName = null, injectIcon = null) {
             return;
         }
     } catch (e) { console.warn('Profile lookup failed:', e); }
-
     const hasPairCode = !!localStorage.getItem('activePairId');
     openProfileModal('Welcome! Set up your profile.', hasPairCode);
 }
-
 function openProfileModal(subtext = '', dismissible = false) {
     const grid = document.getElementById('profileEmojiGrid');
     grid.innerHTML = AVATAR_OPTIONS.map(emoji =>
@@ -955,13 +972,11 @@ function openProfileModal(subtext = '', dismissible = false) {
     if (closeRow) closeRow.style.display = dismissible ? 'flex' : 'none';
     document.getElementById('profileModal').classList.add('active');
 }
-
 function selectProfileEmoji(btnEl, emoji) {
     document.querySelectorAll('#profileEmojiGrid .emoji-option').forEach(el => el.classList.remove('selected'));
     btnEl.classList.add('selected');
     selectedProfileEmoji = emoji;
 }
-
 async function saveProfile() {
     const raw = document.getElementById('profileNameInput').value.trim();
     if (!raw) { alert('Please enter a name!'); return; }
@@ -969,6 +984,8 @@ async function saveProfile() {
     if (PAIR_CODE_RE.test(raw)) {
         const targetId = raw.toUpperCase();
         if (targetId === activePairId) { alert('Already on this pair.'); return; }
+        const ok = await canJoinPair(targetId, DEVICE_ID);
+        if (!ok) { alert(`Pair "${targetId}" already has ${MAX_PAIR_MEMBERS} members.`); return; }
         if (confirm(`Switch to pair "${targetId}"?`)) {
             resetPairState();
             activePairId = targetId;
@@ -980,6 +997,15 @@ async function saveProfile() {
         }
         return;
     }
+    const ok = await canJoinPair(activePairId, DEVICE_ID);
+    if (!ok) {
+        alert(`This pair already has ${MAX_PAIR_MEMBERS} members. Starting a new pair for you instead.`);
+        resetPairState();
+        activePairId = generatePairCode();
+        localStorage.setItem('activePairId', activePairId);
+        updatePairCodeDisplay();
+        attachFirestoreListeners();
+    }
     userProfile = { name: raw, icon: selectedProfileEmoji };
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
     try {
@@ -990,7 +1016,6 @@ async function saveProfile() {
     document.getElementById('profileModal').classList.remove('active');
     renderList();
 }
-
 function deleteAndResetUser() {
     if (!confirm('Reset your profile?')) return;
     localStorage.removeItem('userProfile');
@@ -1001,7 +1026,6 @@ function deleteAndResetUser() {
     document.getElementById('settingsDropdown').style.display = 'none';
     openProfileModal('Profile cleared. Set up again.', false);
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // CATEGORY MANAGER
 // ═══════════════════════════════════════════════════════════════════
@@ -1016,7 +1040,6 @@ function openCategoryModal() {
     renderCategoryModalRows();
     document.getElementById('categoryManagerModal').classList.add('active');
 }
-
 function renderCategoryModalRows() {
     const c = document.getElementById('categoryModalList');
     if (!c) return;
@@ -1029,7 +1052,6 @@ function renderCategoryModalRows() {
             <button onclick="removeCategoryFromModal(${idx})" style="background:none; border:none; color:#dc3545; font-weight:bold; font-size:16px; cursor:pointer; padding:0 6px;">×</button>
         </div>`).join('');
 }
-
 function addNewCategoryRow() {
     const input = document.getElementById('newCategoryInput');
     const raw   = input.value.trim();
@@ -1042,10 +1064,8 @@ function addNewCategoryRow() {
     const container = document.getElementById('categoryModalList');
     setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
 }
-
 function removeCategoryFromModal(idx) { modalCategoryState.splice(idx, 1); renderCategoryModalRows(); }
 function closeCategoryModal() { document.getElementById('categoryManagerModal').classList.remove('active'); }
-
 function saveCategoryModalChanges() {
     const active = modalCategoryState.filter(c => c.active).map(c => c.name);
     if (!active.length) { alert('Keep at least one category.'); return; }
@@ -1054,7 +1074,6 @@ function saveCategoryModalChanges() {
     updateSettings(); updateFilterBar(); renderList();
     closeCategoryModal();
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // SWIPE ENGINE
 // ═══════════════════════════════════════════════════════════════════
@@ -1063,7 +1082,6 @@ let activeSwipeRowId = null;
 let isSwiping = false, isScrolling = false;
 let longPressTimer = null, isLongPressTriggered = false;
 let openSwipeId = null;
-
 function handleTouchStart(id, e) {
     if (openSwipeId && openSwipeId !== id) { closeSwipeRow(openSwipeId); return; }
     const t = e.changedTouches[0];
@@ -1079,7 +1097,6 @@ function handleTouchStart(id, e) {
         }
     }, 600);
 }
-
 function handleTouchMove(id, e) {
     if (activeSwipeRowId !== id || isScrolling) return;
     const t = e.changedTouches[0];
@@ -1095,14 +1112,12 @@ function handleTouchMove(id, e) {
         if (row) row.style.transform = `translateX(${Math.max(-120,Math.min(120,dx))}px)`;
     }
 }
-
 function handleTouchEnd(id, e) {
     clearTimeout(longPressTimer);
     if (activeSwipeRowId !== id) return;
     const dx  = e.changedTouches[0].clientX - touchStartX;
     const dy  = e.changedTouches[0].clientY - touchStartY;
     const row = document.getElementById(`row-${id}`);
-
     if (isLongPressTriggered || isScrolling || Math.abs(dy) > 10) {
         activeSwipeRowId = null; isSwiping = false;
         setTimeout(() => { isScrolling = false; }, 250);
@@ -1120,18 +1135,15 @@ function handleTouchEnd(id, e) {
     }
     activeSwipeRowId = null; isSwiping = false;
 }
-
 function closeSwipeRow(id) {
     const row = document.getElementById(`row-${id}`);
     if (row) { row.style.transition='transform .2s ease'; row.style.transform='translateX(0px)'; }
     openSwipeId = null;
 }
-
 function handleTouchCancel(id) {
     clearTimeout(longPressTimer); closeSwipeRow(id);
     activeSwipeRowId = null; isSwiping = false; isScrolling = false;
 }
-
 function attachModalSwipe(el) {
     let startX = 0, swiped = false;
     el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
@@ -1141,17 +1153,14 @@ function attachModalSwipe(el) {
         else if (d > 20 && swiped) { el.style.transform='translateX(0px)';  swiped=false; }
     }, { passive: true });
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // FAVORITES MODAL
 // ═══════════════════════════════════════════════════════════════════
 function updateSavedRecallCategory(id, cat) { col('savedRecallList').doc(id).update({ category: cat }); }
-
 function openSavedModal() {
     document.getElementById('savedModal').classList.add('active');
     renderModalItems();
 }
-
 function closeSavedModal() {
     savedRecallList.forEach(item => {
         if (!item.selected) return;
@@ -1168,13 +1177,10 @@ function closeSavedModal() {
     });
     document.getElementById('savedModal').classList.remove('active');
 }
-
 function toggleModalCheckbox(id, cur) { col('savedRecallList').doc(id).update({ selected: !cur }); }
-
 function deleteSavedRecallItem(id) {
     if (confirm('Delete shortcut permanently?')) col('savedRecallList').doc(id).delete();
 }
-
 function renderModalItems() {
     const container = document.getElementById('modalItemsContainer');
     if (!savedRecallList.length) { container.innerHTML = '<p style="text-align:center; opacity:.5;">No favorites yet. Swipe right on a list item to save it.</p>'; return; }
@@ -1182,7 +1188,6 @@ function renderModalItems() {
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
     savedRecallList.forEach(item => { const c = item.category||'General'; (groups[c]??groups['General']).push(item); });
-
     let html = '';
     Object.entries(groups).forEach(([cat, items]) => {
         if (!items.length) return;
@@ -1212,7 +1217,6 @@ function renderModalItems() {
     container.innerHTML = html;
     container.querySelectorAll('[data-swipe-id]').forEach(el => attachModalSwipe(el));
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // SWIPE ACTIONS
 // ═══════════════════════════════════════════════════════════════════
@@ -1221,7 +1225,6 @@ function swipeAction(id, action) {
     if (action === 'save')   toggleSaveRecallState(id);
     if (action === 'delete') initiateDeleteWithUndoSafety(id);
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // UNDO DELETE (5s)
 // ═══════════════════════════════════════════════════════════════════
@@ -1246,21 +1249,18 @@ function initiateDeleteWithUndoSafety(id) {
     };
     renderList();
 }
-
 function restoreDeletedItem(id) {
     if (!localDeletedTimers[id]) return;
     clearInterval(localDeletedTimers[id].intervalId);
     delete localDeletedTimers[id];
     renderList();
 }
-
 function finalizePermanentDelete(id) {
     if (!localDeletedTimers[id]) return;
     clearInterval(localDeletedTimers[id].intervalId);
     delete localDeletedTimers[id];
     col('activeList').doc(id).delete().then(() => renderList());
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // DELETE ALL + RESTORE
 // ═══════════════════════════════════════════════════════════════════
@@ -1290,7 +1290,6 @@ function clearEntireActiveList() {
         } catch(err) { console.error(err); alert('Failed to clear list.'); }
     };
 }
-
 async function restoreLastCleared() {
     if (!lastClearedSnapshot?.length) { alert('Nothing to restore.'); return; }
     const batch = db.batch();
@@ -1299,7 +1298,6 @@ async function restoreLastCleared() {
     lastClearedSnapshot = null;
     alert('Restored deleted items.');
 }
-
 async function deleteLocalCompletedRows() {
     const done = currentItems.filter(i => i.checked);
     if (!done.length) { alert('No completed items to delete.'); return; }
@@ -1310,7 +1308,6 @@ async function deleteLocalCompletedRows() {
     await batch.commit();
     openSwipeId = null;
 }
-
 async function restoreAllCompleted() {
     const checked = currentItems.filter(i => i.checked);
     if (checked.length) {
@@ -1329,7 +1326,6 @@ async function restoreAllCompleted() {
     }
     alert('No completed items to restore.');
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // DATA INTERACTION
 // ═══════════════════════════════════════════════════════════════════
@@ -1342,17 +1338,14 @@ function createNewBlankRow() {
     });
     renderList();
 }
-
 function enableRowEdit(id, field) {
     const item = currentItems.find(i => i.id === id);
     if (item && !item.checked) col('activeList').doc(id).update({ isEditing: true, editingField: field });
 }
-
 function toggleRowCheckedState(id, checked) {
     if (String(id).startsWith('local-')) return;
     col('activeList').doc(id).update({ checked: !checked });
 }
-
 function toggleSaveRecallState(id) {
     const item = currentItems.find(i => i.id === id);
     if (!item) return;
@@ -1361,7 +1354,6 @@ function toggleSaveRecallState(id) {
     if (ns) col('savedRecallList').doc(id).set({ l1: item.l1, l2: item.l2, qty: item.qty||1, id, category: item.category||'General' });
     else    col('savedRecallList').doc(id).delete();
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // INPUT SAVE PIPELINE
 // Keyword lookup REMOVED — AI classifies every new item directly
@@ -1372,7 +1364,6 @@ function saveSplitInputs(id) {
     const qtyIn  = document.getElementById(`input-qty-${id}`);
     if (!nameIn || !qtyIn) return;
     processingIds.add(id);
-
     const rawText   = nameIn.value.trim();
     const qty       = parseInt(qtyIn.value, 10) || 1;
     const isLocal   = String(id).startsWith('local-');
@@ -1381,28 +1372,29 @@ function saveSplitInputs(id) {
     const lang2     = document.getElementById('lang2').value;
     const langA     = lang1 < lang2 ? lang1 : lang2;
     const langB     = lang1 < lang2 ? lang2 : lang1;
-
     if (!rawText) {
         if (isLocal) { localEditingItems = localEditingItems.filter(i => i.id !== id); renderList(); }
         else col('activeList').doc(id).update({ isEditing: false });
         processingIds.delete(id); return;
     }
-
     if (isLocal) {
         const target    = localEditingItems.find(i => i.id === id);
         const addedBy   = target?.addedBy   ?? userProfile.name;
         const addedIcon = target?.addedIcon ?? userProfile.icon;
-
-        fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang1}&tl=${lang2}&dt=t&q=${encodeURIComponent(rawText)}`)
+        // Detect the actual language typed (Thai unicode range) rather than
+        // assuming the input always matches lang1 — fixes Thai-typed items
+        // showing the same Thai text in both columns.
+        const typedIsThai = /[\u0E00-\u0E7F]/.test(rawText);
+        const srcLang = typedIsThai ? 'th' : 'en';
+        const tgtLang = typedIsThai ? 'en' : 'th';
+        fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${srcLang}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(rawText)}`)
             .then(r => r.json())
             .then(async data => {
                 const translated = data?.[0]?.[0]?.[0] ?? '[Error]';
-                const db_l1 = lang1 === langA ? rawText : translated;
-                const db_l2 = lang1 === langB ? rawText : translated;
-
+                const db_l1 = srcLang === langA ? rawText : translated;
+                const db_l2 = srcLang === langB ? rawText : translated;
                 // AI classifies every new item — no keyword lookup
                 const cat = await classifyItem(db_l1, 'new');
-
                 localEditingItems = localEditingItems.filter(i => i.id !== id);
                 col('activeList').add({
                     l1: db_l1, l2: db_l2, qty, category: cat,
@@ -1411,7 +1403,6 @@ function saveSplitInputs(id) {
                 }).finally(() => processingIds.delete(id));
             })
             .catch(() => processingIds.delete(id));
-
     } else {
         const payload = { isEditing: false, qty, editingField: firebase.firestore.FieldValue.delete() };
         let val1 = itemMatch.l1, val2 = itemMatch.l2;
@@ -1427,7 +1418,6 @@ function saveSplitInputs(id) {
         }).finally(() => processingIds.delete(id));
     }
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // FILTER BAR
 // ═══════════════════════════════════════════════════════════════════
@@ -1440,7 +1430,6 @@ function setFilter(cat, btnEl) {
     if (btnEl) { btnEl.style.background = 'var(--accent)'; btnEl.style.color = 'var(--bg)'; }
     renderList();
 }
-
 function updateFilterBar() {
     const bar    = document.getElementById('filterBar');
     if (!bar) return;
@@ -1455,7 +1444,6 @@ function updateFilterBar() {
     });
     bar.innerHTML = html;
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // RENDER LIST
 // Column widths via CSS custom properties — real-time during drag
@@ -1467,15 +1455,12 @@ function renderList() {
     const lang1 = document.getElementById('lang1').value;
     const lang2 = document.getElementById('lang2').value;
     const langA = lang1 < lang2 ? lang1 : lang2;
-
     document.getElementById('header-col1').textContent = lang1 === 'en' ? 'Item (Qty)' : 'รายการ (จำนวน)';
-    document.getElementById('header-col2').textContent = lang2 === 'en' ? 'Translation' : 'คำแปล';
-
+    document.getElementById('header-col2-label').textContent = lang2 === 'en' ? 'Translation' : 'คำแปล';
     if (!allVisible.length && !Object.keys(localDeletedTimers).length) {
         container.innerHTML = '<p style="text-align:center; opacity:.5; margin-top:40px;">List is empty. Tap + to start.</p>';
         return;
     }
-
     const cats   = getParsedCategories();
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
@@ -1484,7 +1469,6 @@ function renderList() {
         const cat = item.category || cats[0] || 'General';
         (groups[cat] ?? groups['General']).push(item);
     });
-
     let html = '';
     Object.entries(groups).forEach(([catKey, items]) => {
         if (!items.length) return;
@@ -1494,7 +1478,6 @@ function renderList() {
         items.forEach(item => {
             const c1 = lang1 === langA ? item.l1 : item.l2;
             const c2 = lang2 === langA ? item.l1 : item.l2;
-
             if (item.isEditing) {
                 const ev   = item.editingField === 'translation' ? c2 : c1;
                 const icon = item.addedIcon || userProfile.icon;
@@ -1547,7 +1530,6 @@ function renderList() {
             }
         });
     });
-
     Object.entries(localDeletedTimers).forEach(([id, track]) => {
         const label = lang1 === langA ? track.item.l1 : track.item.l2;
         html += `
@@ -1556,7 +1538,6 @@ function renderList() {
                 <button class="undo-btn" onclick="restoreDeletedItem('${id}')">UNDO</button>
             </div>`;
     });
-
     container.innerHTML = html;
     allVisible.forEach(item => {
         if (item.isEditing) {
@@ -1565,25 +1546,108 @@ function renderList() {
         }
     });
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // FIRESTORE LISTENERS
 // ═══════════════════════════════════════════════════════════════════
 function attachFirestoreListeners() {
     if (unsubActiveList) unsubActiveList();
     if (unsubSavedList)  unsubSavedList();
-
+    if (unsubUsers)      unsubUsers();
     unsubActiveList = col('activeList').orderBy('timestamp','asc').onSnapshot(snap => {
         currentItems = snap.docs.map(d => ({ ...d.data(), id: d.id }));
         renderList();
     });
-
     unsubSavedList = col('savedRecallList').onSnapshot(snap => {
         savedRecallList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
         if (document.getElementById('savedModal').classList.contains('active')) renderModalItems();
     });
+    unsubUsers = col('users').onSnapshot(snap => {
+        updatePartnerDisplay(snap);
+    });
 }
-
+let currentPairUsers = [];
+function updatePartnerDisplay(snap) {
+    currentPairUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    refreshMembersModalIfOpen();
+    const nameEl = document.getElementById('partnerNameDisplay');
+    const dotEl  = document.getElementById('partnerOnlineIndicator');
+    const partnerDoc = snap.docs.find(d => d.id !== DEVICE_ID);
+    if (!partnerDoc) {
+        nameEl.textContent = 'Waiting…';
+        dotEl.style.display = 'none';
+        return;
+    }
+    const p = partnerDoc.data();
+    nameEl.textContent = `${p.icon || '👤'} ${p.name || 'Partner'}`;
+    const lastActive = p.lastActive?.toDate?.() || null;
+    const isOnline = lastActive && (Date.now() - lastActive.getTime() < 2 * 60 * 1000);
+    dotEl.style.display = 'inline-block';
+    dotEl.style.background = isOnline ? '#00ff00' : '#888';
+    dotEl.title = isOnline ? 'Online now' : `Last seen ${lastActive ? lastActive.toLocaleTimeString() : 'unknown'}`;
+}
+// ═══════════════════════════════════════════════════════════════════
+// MEMBERS MODAL (current pair only)
+// ═══════════════════════════════════════════════════════════════════
+function openMembersModal() {
+    document.getElementById('membersModal').classList.add('active');
+    renderMembersList();
+    loadPairName();
+}
+function loadPairName() {
+    const input = document.getElementById('pairNameInput');
+    input.value = '';
+    input.placeholder = 'Loading...';
+    globalPairsRef.doc(activePairId).get().then(doc => {
+        input.value = doc.data()?.pairName || '';
+        input.placeholder = 'Unnamed pair';
+    });
+}
+function savePairName(name) {
+    const trimmed = name.trim();
+    globalPairsRef.doc(activePairId).set({ pairName: trimmed }, { merge: true });
+}
+function closeMembersModal() {
+    document.getElementById('membersModal').classList.remove('active');
+}
+function refreshMembersModalIfOpen() {
+    if (document.getElementById('membersModal').classList.contains('active')) renderMembersList();
+}
+function renderMembersList() {
+    const container = document.getElementById('membersList');
+    if (currentPairUsers.length === 0) {
+        container.innerHTML = '<p style="text-align:center; opacity:.5; font-size:13px;">No members found.</p>';
+        return;
+    }
+    container.innerHTML = currentPairUsers.map(u => {
+        const isSelf = u.id === DEVICE_ID;
+        const lastActive = u.lastActive?.toDate?.() || null;
+        const mins = lastActive ? (Date.now() - lastActive.getTime()) / 60000 : Infinity;
+        let statusLabel, statusColor;
+        if (mins < 2)        { statusLabel = 'Online';   statusColor = '#00ff00'; }
+        else if (mins < 1440) { statusLabel = 'Idle';      statusColor = '#e6a817'; }
+        else                  { statusLabel = 'Inactive';  statusColor = '#888'; }
+        return `
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:8px; border:1px solid var(--col); border-radius:6px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:${statusColor}; flex-shrink:0;"></span>
+                <span>${u.icon || '👤'} ${u.name || 'Unnamed'}${isSelf ? ' (you)' : ''}</span>
+                <span style="opacity:.5; font-size:11px;">${statusLabel}</span>
+            </div>
+            ${isSelf ? `<button onclick="openProfileModal('Edit your profile', true)" style="background:var(--accent); color:var(--bg); border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️ Edit</button>` : `<button onclick="removeMember('${u.id}')" style="background:#dc3545; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Remove</button>`}
+        </div>`;
+    }).join('');
+}
+async function removeMember(deviceId) {
+    const member = currentPairUsers.find(u => u.id === deviceId);
+    const label = member ? `${member.icon || ''} ${member.name || 'this member'}` : 'this member';
+    if (!confirm(`Remove ${label} from this pair? They can rejoin later with the pair code if they're still active.`)) return;
+    try {
+        await col('users').doc(deviceId).delete();
+        console.log(`Removed ${label} from pair ${activePairId}`);
+    } catch (e) {
+        alert('Could not remove member: ' + e.message);
+    }
+}
 // ═══════════════════════════════════════════════════════════════════
 // IMPORT / EXPORT
 // ═══════════════════════════════════════════════════════════════════
@@ -1614,7 +1678,6 @@ async function exportData() {
     document.body.appendChild(overlay);
     setTimeout(() => document.getElementById('exportTextArea').select(), 100);
 }
-
 function openImportModal() {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay active'; overlay.style.zIndex = '9999';
@@ -1631,7 +1694,6 @@ function openImportModal() {
     document.body.appendChild(overlay);
     setTimeout(() => document.getElementById('importTextArea').focus(), 100);
 }
-
 async function importData() {
     const ta   = document.getElementById('importTextArea');
     const text = ta ? ta.value.trim() : '';
@@ -1661,10 +1723,19 @@ async function importData() {
     } catch(err) { console.error(err); alert('Import failed — check the JSON.'); }
     document.querySelector('.modal-overlay[style*="9999"]')?.remove();
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // ENGINE BOOT
 // ═══════════════════════════════════════════════════════════════════
+function startPresenceHeartbeat() {
+    const beat = () => {
+        col('users').doc(DEVICE_ID).set(
+            { lastActive: firebase.firestore.FieldValue.serverTimestamp() },
+            { merge: true }
+        ).catch(() => {});
+    };
+    beat();
+    setInterval(beat, 60 * 1000); // every 60s
+}
 async function init() {
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
@@ -1677,17 +1748,18 @@ async function init() {
         document.getElementById('lang2').value              = 'th';
         document.getElementById('settingsCategories').value = DEFAULT_CATEGORIES;
     }
+// Initialize light/dark mode toggle state (independent of color theme)
+    lightModeOn = localStorage.getItem('lightMode') === 'true';
     updateSettings();
-    updateThemeIconGlyph(document.getElementById('themeSelect').value);
-
+    document.getElementById('themeIconGlyph').textContent = lightModeOn ? 'dark_mode' : 'light_mode';
+    applyLightMode();
     const boot   = resolveBootParams();
     activePairId = boot.pairId;
     updatePairCodeDisplay();
-
     applySplit();
     initDividerDrag();
+    applyTransFontSize();
     updateFilterBar();
-
     // Clear stale edit locks
     col('activeList').get().then(snap => {
         snap.forEach(doc => {
@@ -1699,14 +1771,24 @@ async function init() {
             }
         });
     });
-
     attachFirestoreListeners();
     await checkUserProfile(boot.name, boot.icon);
-
+    // Presence heartbeat — lets partner see we're online
+    startPresenceHeartbeat();
+    // Online status indicator
+    const updateOnlineStatus = () => {
+        const indicator = document.getElementById('onlineIndicator');
+        if (indicator) {
+            indicator.style.background = navigator.onLine ? '#00ff00' : '#ff4444';
+            indicator.title = navigator.onLine ? 'Online' : 'Offline';
+        }
+    };
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
     // Background recategorize after list is live — non-blocking
     setTimeout(() => backgroundRecategorize(), 2000);
 }
-
 init();
 </script>
 </body>
