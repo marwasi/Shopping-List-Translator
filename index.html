@@ -927,24 +927,13 @@ async function deletePair(pairId, btn) {
 async function checkUserProfile(injectName = null, injectIcon = null) {
     globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
     if (injectName && injectIcon) {
-        DEVICE_ID = computeStableDeviceId(injectName, activePairId);
-        const ok = await canJoinPair(activePairId, DEVICE_ID);
-        if (!ok) {
-            alert(`This pair (${activePairId}) already has ${MAX_PAIR_MEMBERS} members. Starting a new pair for you instead.`);
-            resetPairState();
-            activePairId = generatePairCode();
-            DEVICE_ID = computeStableDeviceId(injectName, activePairId);
-            localStorage.setItem('activePairId', activePairId);
-            updatePairCodeDisplay();
-            attachFirestoreListeners();
-            openProfileModal('Welcome! Set up your profile.', false);
-            return;
-        }
+        // Pre-fill with the inviter's suggested name/icon, but require this
+        // device's user to confirm (and edit if needed) before saving —
+        // prevents both people colliding into the same stable ID if the
+        // link's suggested name is left unchanged and matches the inviter's.
         userProfile = { name: injectName, icon: injectIcon };
-        localStorage.setItem('userProfile', JSON.stringify(userProfile));
-        globalUsersRef.doc(DEVICE_ID).set(userProfile, { merge: true });
-        col('users').doc(DEVICE_ID).set(userProfile, { merge: true });
-        updateHeaderProfileDisplay();
+        selectedProfileEmoji = injectIcon;
+        openProfileModal(`Joining pair ${activePairId}. Confirm your name and icon below.`, false);
         return;
     }
     const cached = localStorage.getItem('userProfile');
