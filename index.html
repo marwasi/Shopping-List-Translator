@@ -130,6 +130,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v26</div>
         </div>
         <div class="header-title-block">
             <h2>Shopping Translator</h2>
@@ -539,7 +540,15 @@ function resolveBootParams() {
     if (!stored) { stored = generatePairCode(); localStorage.setItem('activePairId', stored); }
     return { pairId: stored, name: null, icon: null, profileFromUrl: false };
 }
-const DEVICE_ID = ensureDeviceId();
+let DEVICE_ID = ensureDeviceId();
+// Stable identity: same name + same pair code always resolves to the same
+// member slot, regardless of browser/device/hosting origin. Replaces
+// reliance on a random per-browser ID, which broke on redeploys/cache clears.
+function computeStableDeviceId(name, pairId) {
+    const safeName = (name || 'user').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'user';
+    const safePair = (pairId || '').trim().toUpperCase();
+    return `${safeName}__${safePair}`;
+}
 let   activePairId = null;
 const col = (name) => globalPairsRef.doc(activePairId).collection(name);
 async function registerPair(pairId) {
@@ -918,11 +927,13 @@ async function deletePair(pairId, btn) {
 async function checkUserProfile(injectName = null, injectIcon = null) {
     globalPairsRef.doc(activePairId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
     if (injectName && injectIcon) {
+        DEVICE_ID = computeStableDeviceId(injectName, activePairId);
         const ok = await canJoinPair(activePairId, DEVICE_ID);
         if (!ok) {
             alert(`This pair (${activePairId}) already has ${MAX_PAIR_MEMBERS} members. Starting a new pair for you instead.`);
             resetPairState();
             activePairId = generatePairCode();
+            DEVICE_ID = computeStableDeviceId(injectName, activePairId);
             localStorage.setItem('activePairId', activePairId);
             updatePairCodeDisplay();
             attachFirestoreListeners();
@@ -941,6 +952,7 @@ async function checkUserProfile(injectName = null, injectIcon = null) {
         const p = JSON.parse(cached);
         if (p.name && p.name !== 'User') {
             userProfile = p;
+            DEVICE_ID = computeStableDeviceId(p.name, activePairId);
             updateHeaderProfileDisplay();
             globalUsersRef.doc(DEVICE_ID).set(userProfile, { merge: true });
             col('users').doc(DEVICE_ID).set(userProfile, { merge: true });
@@ -997,7 +1009,7 @@ async function saveProfile() {
         }
         return;
     }
-    const ok = await canJoinPair(activePairId, DEVICE_ID);
+    const ok = await canJoinPair(activePairId, computeStableDeviceId(raw, activePairId));
     if (!ok) {
         alert(`This pair already has ${MAX_PAIR_MEMBERS} members. Starting a new pair for you instead.`);
         resetPairState();
@@ -1006,6 +1018,7 @@ async function saveProfile() {
         updatePairCodeDisplay();
         attachFirestoreListeners();
     }
+    DEVICE_ID = computeStableDeviceId(raw, activePairId);
     userProfile = { name: raw, icon: selectedProfileEmoji };
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
     try {
