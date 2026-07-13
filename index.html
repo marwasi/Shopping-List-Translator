@@ -48,9 +48,10 @@
         /* ── GRID HEADER ── */
         .grid-header { display:flex; align-items:center; font-weight:bold; padding:6px 10px; border-bottom:2px solid var(--col); font-size:13px; color:var(--accent); position:relative; z-index:100; }
         .h-item  { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:4px; }
-        .h-trans { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-left:8px; font-size:11px; opacity:.7; }
+        .h-trans { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; opacity:.7; display:flex; align-items:center; justify-content:center; }
         /* ── DRAGGABLE DIVIDER ── */
-        .col-divider { width:28px; flex-shrink:0; cursor:col-resize; display:flex; align-items:center; justify-content:center; color:var(--col); font-size:13px; user-select:none; -webkit-user-select:none; touch-action:none; border-radius:4px; padding:2px 0; }
+        .col-divider { width:18px; flex-shrink:0; cursor:col-resize; display:flex; align-items:center; justify-content:center; color:var(--col); font-size:13px; user-select:none; -webkit-user-select:none; touch-action:none; border-radius:4px; padding:2px 0; }
+        .col-divider-group { position:relative; top:6px; z-index:101; }
         .col-divider:hover { color:var(--accent); background:rgba(255,255,255,.05); }
         .col-divider.dragging { color:var(--accent); background:rgba(255,255,255,.08); }
         /* ── SWIPE ROWS ── */
@@ -218,17 +219,10 @@
 <div id="filterBar">
     <button class="chip" onclick="setFilter('All',this)" style="background:var(--accent); color:var(--bg);">All</button>
 </div>
-<!-- ── GRID HEADER ── -->
-<div class="grid-header" id="gridHeader">
-    <div id="header-col1" class="h-item">Item (Qty)</div>
-    <div class="col-divider" id="colDivider">⋮</div>
-    <div id="header-col2" class="h-trans" style="display:flex; align-items:center; gap:4px;">
-        <span id="header-col2-label" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Translation</span>
-        <button class="trans-font-btn" onclick="adjustTransFontSize(-1)" title="Smaller translation text">−</button>
-        <button class="trans-font-btn" onclick="adjustTransFontSize(1)" title="Larger translation text">+</button>
-    </div>
+<!-- ── HEADER UTILITY ROW (star / AI log / menu) ── -->
+<div class="header-utility-row" style="display:flex; justify-content:flex-end; align-items:center; padding:4px 10px 0; position:relative;">
     <button id="catToggleBtn" onclick="toggleCategoryView()" title="Toggle categories"
-            style="background:none; border:none; cursor:pointer; padding:0 4px; margin-left:4px; flex-shrink:0; line-height:1;">
+            style="background:none; border:none; cursor:pointer; padding:0 4px; flex-shrink:0; line-height:1;">
         <span class="material-symbols-outlined" id="catToggleIcon">unfold_more</span>
     </button>
     <button onclick="openSavedModal()" title="Favorites"
@@ -241,6 +235,18 @@
         <button class="dropdown-action-btn" onclick="restoreLastCleared(); toggleActionsDropdown();">↩️ Restore Deleted</button>
         <button class="dropdown-action-btn" onclick="deleteLocalCompletedRows(); toggleActionsDropdown();">🧹 Delete Completed</button>
         <button class="dropdown-action-btn" onclick="restoreAllCompleted(); toggleActionsDropdown();">✔️ Restore Completed</button>
+    </div>
+</div>
+<!-- ── GRID HEADER ── -->
+<div class="grid-header" id="gridHeader">
+    <div id="header-col1" class="h-item">Item (Qty)</div>
+    <div class="col-divider-group" style="display:flex; align-items:center; gap:2px; flex-shrink:0;">
+        <button class="trans-font-btn" onclick="adjustTransFontSize(1)" title="Larger translation text">+</button>
+        <div class="col-divider" id="colDivider">⋮</div>
+        <button class="trans-font-btn" onclick="adjustTransFontSize(-1)" title="Smaller translation text">−</button>
+    </div>
+    <div id="header-col2" class="h-trans">
+        <span id="header-col2-label">Translation</span>
     </div>
 </div>
 <div id="itemList"></div>
@@ -541,6 +547,14 @@ function resolveBootParams() {
     return { pairId: stored, name: null, icon: null, profileFromUrl: false };
 }
 let DEVICE_ID = ensureDeviceId();
+// Detects the device's own language (from Android/browser locale) so
+// column 1 defaults to "my language" and column 2 to the translation —
+// e.g. an English-locale phone sees English/Thai, a Thai-locale phone
+// sees Thai/English, automatically, without manual setup.
+function detectDeviceLang() {
+    const l = ((navigator.language || navigator.userLanguage || 'en') + '').toLowerCase();
+    return l.startsWith('th') ? 'th' : 'en';
+}
 // Stable identity: same name + same pair code always resolves to the same
 // member slot, regardless of browser/device/hosting origin. Replaces
 // reliance on a random per-browser ID, which broke on redeploys/cache clears.
@@ -1739,16 +1753,25 @@ function startPresenceHeartbeat() {
     setInterval(beat, 60 * 1000); // every 60s
 }
 async function init() {
+    const deviceLang = detectDeviceLang();
+    const otherLang   = deviceLang === 'en' ? 'th' : 'en';
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
         document.getElementById('themeSelect').value        = prefs.theme      || 'nordic-frost';
-        document.getElementById('lang1').value              = prefs.lang1      || 'en';
-        document.getElementById('lang2').value              = prefs.lang2      || 'th';
+        document.getElementById('lang1').value              = prefs.lang1      || deviceLang;
+        document.getElementById('lang2').value              = prefs.lang2      || otherLang;
         document.getElementById('settingsCategories').value = prefs.categories || DEFAULT_CATEGORIES;
     } else {
-        document.getElementById('lang1').value              = 'en';
-        document.getElementById('lang2').value              = 'th';
+        document.getElementById('lang1').value              = deviceLang;
+        document.getElementById('lang2').value              = otherLang;
         document.getElementById('settingsCategories').value = DEFAULT_CATEGORIES;
+    }
+    // Safety: never let both columns show the same language (this is what
+    // causes a "Thai and Thai" entry) — fall back to the device's own
+    // detected language if lang1/lang2 ever end up identical.
+    if (document.getElementById('lang1').value === document.getElementById('lang2').value) {
+        document.getElementById('lang1').value = deviceLang;
+        document.getElementById('lang2').value = otherLang;
     }
 // Initialize light/dark mode toggle state (independent of color theme)
     lightModeOn = localStorage.getItem('lightMode') === 'true';
