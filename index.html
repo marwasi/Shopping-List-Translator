@@ -131,7 +131,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v28</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v30</div>
         </div>
         <div class="header-title-block">
             <h2>Shopping Translator</h2>
@@ -1028,6 +1028,7 @@ async function saveProfile() {
         await globalUsersRef.doc(DEVICE_ID).set(userProfile);
         await col('users').doc(DEVICE_ID).set(userProfile);
     } catch (e) { console.warn('Profile save failed:', e); }
+    sendPresenceHeartbeat();
     updateHeaderProfileDisplay();
     document.getElementById('profileModal').classList.remove('active');
     renderList();
@@ -1742,15 +1743,16 @@ async function importData() {
 // ═══════════════════════════════════════════════════════════════════
 // ENGINE BOOT
 // ═══════════════════════════════════════════════════════════════════
+function sendPresenceHeartbeat() {
+    if (!userProfile || !userProfile.name || userProfile.name === 'User') return;
+    col('users').doc(DEVICE_ID).set(
+        { lastActive: firebase.firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+    ).catch(() => {});
+}
 function startPresenceHeartbeat() {
-    const beat = () => {
-        col('users').doc(DEVICE_ID).set(
-            { lastActive: firebase.firestore.FieldValue.serverTimestamp() },
-            { merge: true }
-        ).catch(() => {});
-    };
-    beat();
-    setInterval(beat, 60 * 1000); // every 60s
+    sendPresenceHeartbeat();
+    setInterval(sendPresenceHeartbeat, 60 * 1000); // every 60s
 }
 async function init() {
     const deviceLang = detectDeviceLang();
