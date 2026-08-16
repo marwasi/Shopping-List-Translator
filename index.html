@@ -559,7 +559,7 @@ function detectDeviceLang() {
 // member slot, regardless of browser/device/hosting origin. Replaces
 // reliance on a random per-browser ID, which broke on redeploys/cache clears.
 function computeStableDeviceId(name, pairId) {
-    const safeName = (name || 'user').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'user';
+    const safeName = (name || 'user').trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'user';
     const safePair = (pairId || '').trim().toUpperCase();
     return `${safeName}__${safePair}`;
 }
