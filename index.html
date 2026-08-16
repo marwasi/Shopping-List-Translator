@@ -1652,7 +1652,9 @@ function updatePartnerDisplay(snap) {
     if (document.getElementById('pairsManagerModal').classList.contains('active')) renderPairsManagerList();
     const nameEl = document.getElementById('partnerNameDisplay');
     const dotEl  = document.getElementById('partnerOnlineIndicator');
-    const partnerDoc = snap.docs.find(d => d.id !== DEVICE_ID);
+    const myRole = localStorage.getItem('myRole');
+    const otherRole = myRole === '1' ? '2' : '1';
+    const partnerDoc = snap.docs.find(d => d.id === slotId(parseInt(otherRole, 10)));
     if (!partnerDoc) {
         nameEl.textContent = 'Waiting…';
         dotEl.style.display = 'none';
@@ -1816,4 +1818,3 @@ init();
 </script>
 </body>
 </html>
-
