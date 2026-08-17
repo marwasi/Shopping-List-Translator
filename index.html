@@ -988,9 +988,12 @@ function renderPairRow(id, cur, stale, slots, pairName) {
         }
         return `<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12px;">
             <span>${s.icon || '👤'} ${s.name || 'Unnamed'}${isMe ? ' (you)' : ''}</span>
-            ${isMe
-                ? `<button onclick="openProfileModal('Edit your profile', true)" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️ Edit</button>`
-                : `<button onclick="removeSlot('${id}',${role})" style="background:#dc3545; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Remove</button>`}
+            <span style="display:flex; gap:6px;">
+                <button onclick="copyInviteLink('${id}',${role})" title="Recover link for this person" style="background:var(--col); color:var(--text); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🔗</button>
+                ${isMe
+                    ? `<button onclick="openProfileModal('Edit your profile', true)" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️ Edit</button>`
+                    : `<button onclick="removeSlot('${id}',${role})" style="background:#dc3545; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Remove</button>`}
+            </span>
         </div>`;
     };
     return `
@@ -1818,4 +1821,3 @@ init();
 </script>
 </body>
 </html>
-
