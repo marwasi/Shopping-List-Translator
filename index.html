@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Shopping Translator</title>
+    <title>STapp</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#61afef">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         :root, .nordic-frost   { --bg:#1e222a; --card:#282c34; --col:#3e4451; --text-muted:#abb2bf; --text:#fff; --accent:#61afef; }
@@ -28,6 +31,8 @@
         .header-title-block    { flex:1; min-width:0; }
         .header-title-block h2 { position:absolute; left:50%; top:0; transform:translateX(-50%); margin:0!important; z-index:0; pointer-events:none; }
         .header-title-block h2 { margin:0; font-size:18px; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+        .header-title-block h2 { transition: filter 0.6s ease, opacity 0.6s ease; }
+        .header-title-block h2.title-blurred { filter: blur(6px); opacity: 0; }
         .header-right-stack    { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
         .header-actions-row    { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
         .main-toggle-btn       { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text); padding:2px; display:inline-flex; align-items:center; }
@@ -131,20 +136,22 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v31</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.29</div>
         </div>
         <div class="header-title-block">
-            <h2>Shopping Translator</h2>
+            <h2 id="appTitle">Shopping Translator</h2>
             <div id="currentUserDisplay" class="current-user-display" style="display:flex; align-items:center; gap:8px; font-size:13px; margin-top:26px; position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap;">
                 <span style="display:flex; align-items:center; gap:4px;">
                     <span id="onlineIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#00ff00; flex-shrink:0;"></span>
                      <span id="userNameDisplay">User</span>
                     <button class="pair-code-copy-btn" onclick="copyMyPairLink()" title="Copy my invite link">🔗</button>
+                    <button id="langToggleBtn" onclick="toggleMyLanguage()" title="Switch your language" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 2px;">🇬🇧</button>
                 </span>
                 <span style="opacity:.5;">|</span>
                 <span onclick="openPairsManagerModal()" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
                     <span id="partnerOnlineIndicator" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#888; flex-shrink:0;"></span>
                     <span id="partnerNameDisplay" style="opacity:.7;">—</span>
+                    <button class="pair-code-copy-btn" onclick="event.stopPropagation(); copyPartnerLink();" title="Copy partner's recovery link">🔗</button>
                 </span>
             </div>
         </div>
@@ -170,23 +177,22 @@
             </select>
         </label>
         <label style="margin-top:10px; display:block;">List Categories
+            <button id="translateCatsBtn" onclick="translateCategoriesList()" title="Translate to Thai"
+                    style="background:none; border:none; cursor:pointer; font-size:13px; vertical-align:middle; padding:0 2px;">✨</button>
             <input type="text" id="settingsCategories" readonly onclick="openCategoryModal()"
                    placeholder="Tap to manage..." class="settings-input" style="cursor:pointer; caret-color:transparent;">
+            <input type="text" id="settingsCategoriesTh" readonly
+                   placeholder="Thai translation — tap ✨ above" class="settings-input" style="margin-top:4px; opacity:.75; font-size:12px; caret-color:transparent;">
         </label>
-        <div class="submenu-container">
-            <div class="submenu-title"><span>Translation Config</span> 🌐</div>
-            <label style="font-size:12px; margin-bottom:6px; display:block;">Lang 1
-                <select id="lang1" onchange="updateSettings(); renderList();">
-                    <option value="en">English</option>
-                    <option value="th">Thai</option>
-                </select>
-            </label>
-            <label style="font-size:12px; display:block;">Lang 2
-                <select id="lang2" onchange="updateSettings(); renderList();">
-                    <option value="th">Thai</option>
-                    <option value="en">English</option>
-                </select>
-            </label>
+        <div style="display:none;">
+            <select id="lang1" onchange="updateSettings(); renderList();">
+                <option value="en">English</option>
+                <option value="th">Thai</option>
+            </select>
+            <select id="lang2" onchange="updateSettings(); renderList();">
+                <option value="th">Thai</option>
+                <option value="en">English</option>
+            </select>
         </div>
         <hr style="border:0; border-top:1px solid var(--col); margin:12px 0;">
         <button onclick="openPairsManagerModal()" style="width:100%; margin-bottom:8px; font-size:12px; font-weight:bold; background:var(--accent); color:var(--bg); border:none; padding:9px; border-radius:4px; cursor:pointer;">
@@ -284,19 +290,34 @@
     <div class="modal-content" style="max-width:360px;">
         <div id="createPairCloseRow" style="display:none; justify-content:flex-end; margin-bottom:-6px;">
             <span style="cursor:pointer; font-size:24px; opacity:.6; line-height:1; padding:2px 6px;"
-                  onclick="document.getElementById('createPairModal').classList.remove('active')">×</span>
+                  onclick="closeCreatePairModal()">×</span>
         </div>
-        <h3 style="text-align:center; margin-top:0; color:var(--accent);">Set Up Your Pair</h3>
-        <p style="text-align:center; font-size:13px; opacity:.7; margin-top:-8px; margin-bottom:14px;">
+        <h3 id="createPairModalTitle" style="text-align:center; margin-top:0; color:var(--accent);">Set Up Your Pair</h3>
+        <p id="createPairModalSubtext" style="text-align:center; font-size:13px; opacity:.7; margin-top:-8px; margin-bottom:14px;">
             Enter both names now. You're set up right away — your partner just opens the link, no setup needed on their end.
         </p>
         <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:6px;">Your Name:</label>
         <input type="text" id="createMyName" class="row-input" placeholder="e.g. Mark" style="width:95%; margin-bottom:8px;">
-        <div class="emoji-grid" id="createMyEmojiGrid" style="margin-bottom:16px;"></div>
+        <div class="emoji-grid" id="createMyEmojiGrid" style="margin-bottom:8px;"></div>
+        <label style="font-size:12px; display:block; margin-bottom:16px;">Your Language:
+            <select id="createMyLang" style="margin-left:6px;">
+                <option value="en">English</option>
+                <option value="th">Thai</option>
+            </select>
+        </label>
         <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:6px;">Partner's Name:</label>
         <input type="text" id="createPartnerName" class="row-input" placeholder="e.g. Mali" style="width:95%; margin-bottom:8px;">
-        <div class="emoji-grid" id="createPartnerEmojiGrid" style="margin-bottom:16px;"></div>
-        <button class="modal-close-btn" onclick="submitCreatePair()">Create Pair</button>
+        <div class="emoji-grid" id="createPartnerEmojiGrid" style="margin-bottom:8px;"></div>
+        <label style="font-size:12px; display:block; margin-bottom:16px;">Partner's Language:
+            <select id="createPartnerLang" style="margin-left:6px;">
+                <option value="th">Thai</option>
+                <option value="en">English</option>
+            </select>
+        </label>
+        <button id="createPairSubmitBtn" class="modal-close-btn" onclick="submitCreatePair()">Create Pair</button>
+        <button id="deletePairBtn" onclick="deletePairFromEditor()" style="display:none; width:100%; margin-top:10px; background:#dc3545; color:#fff; border:none; padding:9px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">
+            🗑️ Delete This Pair
+        </button>
     </div>
 </div>
 <!-- ═══ ROLE CONFIRM MODAL ══ -->
@@ -358,6 +379,7 @@ const AVATAR_OPTIONS = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','
 const APP_BASE_URL   = 'https://marwasi.github.io/Shopping-List-Translator/';
 const ONE_WEEK_MS    = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_CATEGORIES = 'Fresh Produce, Meat & Poultry, Seafood, Dairy, Bakery, Grains & Pasta, Canned Goods, Frozen Foods, Snacks, Beverages, Condiments & Sauces, Breakfast Items, Household Essentials, Personal Care, Specialty Foods, Pharmacy, General';
+const DEFAULT_CATEGORIES_TH = 'ผักและผลไม้สด, เนื้อสัตว์และสัตว์ปีก, อาหารทะเล, ผลิตภัณฑ์นม, เบเกอรี่, ธัญพืชและพาสต้า, อาหารกระป๋อง, อาหารแช่แข็ง, ขนมขบเคี้ยว, เครื่องดื่ม, เครื่องปรุงและซอส, อาหารเช้า, ของใช้ในบ้าน, ของใช้ส่วนตัว, อาหารพิเศษ, ร้านขายยา, ทั่วไป';
 // ═══════════════════════════════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════════════════════════════
@@ -579,6 +601,12 @@ async function bindToSlot(pairId, role) {
     try {
         const snap = await col('users').doc(DEVICE_ID).get();
         userProfile = snap.exists ? { name: snap.data().name || 'User', icon: snap.data().icon || '🛒' } : { name: 'User', icon: '🛒' };
+        const storedLang = snap.exists ? snap.data().lang : null;
+        if (storedLang === 'en' || storedLang === 'th') {
+            document.getElementById('lang1').value = storedLang;
+            document.getElementById('lang2').value = storedLang === 'en' ? 'th' : 'en';
+        }
+        updateMyLanguageDisplay();
         // Binding IS claiming — mark it so Pairs Manager knows this slot
         // is occupied by a device, not just pre-filled with a name.
         col('users').doc(DEVICE_ID).set({ claimed: true }, { merge: true }).catch(() => {});
@@ -627,9 +655,41 @@ let unsubUsers                   = null;
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════
 function getParsedCategories() {
-    const csv = document.getElementById('settingsCategories').value.trim();
-    if (!csv) return DEFAULT_CATEGORIES.split(',').map(c => c.trim());
-    return csv.split(',').map(c => c.trim()).filter(Boolean);
+    const enCsv = document.getElementById('settingsCategories').value.trim() || DEFAULT_CATEGORIES;
+    const thCsv = document.getElementById('settingsCategoriesTh')?.value.trim() || '';
+    const enList = enCsv.split(',').map(c => c.trim()).filter(Boolean);
+    const thList = thCsv ? thCsv.split(',').map(c => c.trim()) : [];
+    return enList.map((en, i) => ({ en, th: thList[i] || en }));
+}
+// Category NAME stays the stable English canonical key everywhere (storage,
+// filtering, AI classification) — only the displayed LABEL changes per device.
+function catLabel(en) {
+    const lang1 = document.getElementById('lang1')?.value || 'en';
+    if (lang1 !== 'th') return en;
+    const found = getParsedCategories().find(c => c.en === en);
+    return found ? (found.th || en) : en;
+}
+// Batch-translates the current English category list to Thai via the same
+// Google Translate endpoint used for items, filling the read-only Thai line.
+async function translateCategoriesList() {
+    const enList = (document.getElementById('settingsCategories').value.trim() || DEFAULT_CATEGORIES)
+        .split(',').map(c => c.trim()).filter(Boolean);
+    const btn = document.getElementById('translateCatsBtn');
+    if (btn) { btn.textContent = '⏳'; btn.style.pointerEvents = 'none'; }
+    try {
+        const results = await Promise.all(enList.map(name =>
+            fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=th&dt=t&q=${encodeURIComponent(name)}`)
+                .then(r => r.json())
+                .then(data => data?.[0]?.[0]?.[0] ?? name)
+                .catch(() => name)
+        ));
+        document.getElementById('settingsCategoriesTh').value = results.join(', ');
+        updateSettings(); updateFilterBar(); renderList();
+    } catch (e) {
+        alert('Translation failed: ' + e.message);
+    } finally {
+        if (btn) { btn.textContent = '✨'; btn.style.pointerEvents = 'auto'; }
+    }
 }
 function updateHeaderProfileDisplay() {
     const nameEl = document.getElementById('userNameDisplay');
@@ -637,6 +697,50 @@ function updateHeaderProfileDisplay() {
 }
 function updatePairCodeDisplay() {
     document.getElementById('pairCodeLabel').textContent = activePairId || '——';
+}
+// A little fun: the header title quietly blurs out and returns showing the
+// Thai name, then cycles back — purely cosmetic, no functional purpose.
+const APP_TITLE_EN = 'Shopping Translator';
+const APP_TITLE_TH = 'ล่ามช้อปปิ้ง';
+function startTitleCycle() {
+    const el = document.getElementById('appTitle');
+    if (!el) return;
+    const lang1 = document.getElementById('lang1')?.value || 'en';
+    function blurSwap(text, thenFn) {
+        el.classList.add('title-blurred');
+        setTimeout(() => {
+            el.textContent = text;
+            el.classList.remove('title-blurred');
+            if (thenFn) setTimeout(thenFn, 1400);
+        }, 600);
+    }
+    setTimeout(() => {
+        // Primary=English: EN → blur → TH → blur → EN (round trip, then stop)
+        // Primary=Thai:    EN → blur → TH (stop there)
+        blurSwap(APP_TITLE_TH, lang1 === 'th' ? null : () => blurSwap(APP_TITLE_EN));
+    }, 1500);
+}
+// Language now belongs to the PERSON (stored on their own slot doc), not
+// the device — this lets a bilingual user flip it in one tap instead of
+// digging into Settings, and it follows them if they switch devices.
+function updateMyLanguageDisplay() {
+    const btn = document.getElementById('langToggleBtn');
+    if (!btn) return;
+    btn.textContent = document.getElementById('lang1').value === 'th' ? '🇹🇭' : '🇬🇧';
+}
+async function toggleMyLanguage() {
+    const cur  = document.getElementById('lang1').value;
+    const next = cur === 'en' ? 'th' : 'en';
+    document.getElementById('lang1').value = next;
+    document.getElementById('lang2').value = cur;
+    updateSettings();
+    updateMyLanguageDisplay();
+    updateFilterBar();
+    renderList();
+    if (activePairId && DEVICE_ID) {
+        try { await col('users').doc(DEVICE_ID).set({ lang: next }, { merge: true }); }
+        catch (e) { console.warn('Could not save language preference:', e); }
+    }
 }
 function copyMyPairLink() {
     const link = buildMyLink();
@@ -646,6 +750,11 @@ function copyMyPairLink() {
         lbl.textContent = 'Copied!';
         setTimeout(() => { lbl.textContent = orig; }, 1500);
     });
+}
+function copyPartnerLink() {
+    const myRole = localStorage.getItem('myRole');
+    const otherRole = myRole === '1' ? 2 : 1;
+    copyInviteLink(activePairId, otherRole);
 }
 // ═══════════════════════════════════════════════════════════════════
 // AI — GROQ VIA PROXY
@@ -684,7 +793,7 @@ async function callGroqViaProxy(messages, maxTokens = 20, retries = 2) {
  * Logs the interaction to the ✨ panel in plain English.
  */
 async function classifyItem(itemText, context = 'new') {
-    const cats = getParsedCategories();
+    const cats = getParsedCategories().map(c => c.en);
     const messages = [
         {
             role: 'system',
@@ -753,7 +862,7 @@ async function bulkCategorizeAll(e) {
  * Runs after the list renders — user never waits.
  */
 async function backgroundRecategorize() {
-    const cats    = getParsedCategories();
+    const cats    = getParsedCategories().map(c => c.en);
     const snap    = await col('activeList').get();
     const stale   = snap.docs.filter(d => {
         const cat = d.data().category;
@@ -788,9 +897,10 @@ function updateSettings() {
     const theme = document.getElementById('themeSelect').value;
     const lang1 = document.getElementById('lang1').value;
     const lang2 = document.getElementById('lang2').value;
-    const cats  = document.getElementById('settingsCategories').value;
+    const cats   = document.getElementById('settingsCategories').value;
+    const catsTh = document.getElementById('settingsCategoriesTh').value;
     document.body.className = theme + (lightModeOn ? ' light-mode' : '');
-    localStorage.setItem('appPrefs', JSON.stringify({ theme, lang1, lang2, categories: cats }));
+    localStorage.setItem('appPrefs', JSON.stringify({ theme, lang1, lang2, categories: cats, categoriesTh: catsTh }));
 }
 let lightModeOn = localStorage.getItem('lightMode') === 'true';
 function toggleThemeMode() {
@@ -820,13 +930,8 @@ function toggleCategoryView() {
 // ═══════════════════════════════════════════════════════════════════
 let selectedCreateMyEmoji = '🛒';
 let selectedCreatePartnerEmoji = '👩';
-function openCreatePairModal(dismissible = false) {
-    document.getElementById('settingsDropdown').style.display = 'none';
-    document.getElementById('pairsManagerModal').classList.remove('active');
-    document.getElementById('createMyName').value = '';
-    document.getElementById('createPartnerName').value = '';
-    selectedCreateMyEmoji = '🛒';
-    selectedCreatePartnerEmoji = '👩';
+let editingPairId = null; // null = creating a new pair; set = editing an existing one
+function renderCreatePairEmojiGrids() {
     document.getElementById('createMyEmojiGrid').innerHTML = AVATAR_OPTIONS.map(emoji =>
         `<button class="emoji-option ${emoji === selectedCreateMyEmoji ? 'selected' : ''}"
                  onclick="selectCreateEmoji(this,'${emoji}','me')">${emoji}</button>`
@@ -835,9 +940,58 @@ function openCreatePairModal(dismissible = false) {
         `<button class="emoji-option ${emoji === selectedCreatePartnerEmoji ? 'selected' : ''}"
                  onclick="selectCreateEmoji(this,'${emoji}','partner')">${emoji}</button>`
     ).join('');
+}
+function openCreatePairModal(dismissible = false) {
+    editingPairId = null;
+    document.getElementById('settingsDropdown').style.display = 'none';
+    document.getElementById('pairsManagerModal').classList.remove('active');
+    document.getElementById('createPairModalTitle').textContent = 'Set Up Your Pair';
+    document.getElementById('createPairModalSubtext').textContent =
+        "Enter both names now. You're set up right away — your partner just opens the link, no setup needed on their end.";
+    document.getElementById('createPairSubmitBtn').textContent = 'Create Pair';
+    document.getElementById('deletePairBtn').style.display = 'none';
+    document.getElementById('createMyName').value = '';
+    document.getElementById('createPartnerName').value = '';
+    document.getElementById('createMyLang').value = detectDeviceLang();
+    document.getElementById('createPartnerLang').value = detectDeviceLang() === 'en' ? 'th' : 'en';
+    selectedCreateMyEmoji = '🛒';
+    selectedCreatePartnerEmoji = '👩';
+    renderCreatePairEmojiGrids();
     const closeRow = document.getElementById('createPairCloseRow');
     if (closeRow) closeRow.style.display = dismissible ? 'flex' : 'none';
     document.getElementById('createPairModal').classList.add('active');
+}
+// Role-1 only: edit BOTH people's name/icon/language for a pair, plus delete it.
+async function openEditPairModal(pairId) {
+    document.getElementById('settingsDropdown').style.display = 'none';
+    document.getElementById('pairsManagerModal').classList.remove('active');
+    showPleaseWaitModal();
+    let p1 = {}, p2 = {};
+    try {
+        const snap = await globalPairsRef.doc(pairId).collection('users').get();
+        snap.docs.forEach(d => { if (d.id === 'p1') p1 = d.data(); if (d.id === 'p2') p2 = d.data(); });
+    } catch (e) {
+        hidePleaseWaitModal(); alert('Could not load pair: ' + e.message); return;
+    }
+    hidePleaseWaitModal();
+    editingPairId = pairId;
+    document.getElementById('createPairModalTitle').textContent = 'Edit Pair';
+    document.getElementById('createPairModalSubtext').textContent = "Update either person's name, icon, or language.";
+    document.getElementById('createPairSubmitBtn').textContent = 'Save Changes';
+    document.getElementById('deletePairBtn').style.display = (pairId === activePairId) ? 'none' : 'block';
+    document.getElementById('createMyName').value = p1.name || '';
+    document.getElementById('createPartnerName').value = p2.name || '';
+    document.getElementById('createMyLang').value = p1.lang || 'en';
+    document.getElementById('createPartnerLang').value = p2.lang || 'th';
+    selectedCreateMyEmoji = p1.icon || '🛒';
+    selectedCreatePartnerEmoji = p2.icon || '👩';
+    renderCreatePairEmojiGrids();
+    document.getElementById('createPairCloseRow').style.display = 'flex';
+    document.getElementById('createPairModal').classList.add('active');
+}
+function closeCreatePairModal() {
+    document.getElementById('createPairModal').classList.remove('active');
+    if (editingPairId) { editingPairId = null; openPairsManagerModal(); }
 }
 function selectCreateEmoji(btnEl, emoji, who) {
     const gridId = who === 'me' ? '#createMyEmojiGrid' : '#createPartnerEmojiGrid';
@@ -848,16 +1002,48 @@ function selectCreateEmoji(btnEl, emoji, who) {
 async function submitCreatePair() {
     const myName = document.getElementById('createMyName').value.trim();
     const partnerName = document.getElementById('createPartnerName').value.trim();
+    const myLang = document.getElementById('createMyLang').value;
+    const partnerLang = document.getElementById('createPartnerLang').value;
     if (!myName) { alert('Please enter your name.'); return; }
     if (!partnerName) { alert("Please enter your partner's name."); return; }
+
+    if (editingPairId) {
+        // EDIT MODE — update both slot docs on an existing pair.
+        const targetPairId = editingPairId;
+        try {
+            const batch = db.batch();
+            const ref = globalPairsRef.doc(targetPairId).collection('users');
+            batch.set(ref.doc('p1'), { name: myName, icon: selectedCreateMyEmoji, lang: myLang }, { merge: true });
+            batch.set(ref.doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, lang: partnerLang }, { merge: true });
+            await batch.commit();
+        } catch (e) { alert('Failed to save changes: ' + e.message); return; }
+        if (targetPairId === activePairId) {
+            // Editing the pair we're currently on — refresh this device's live state too.
+            userProfile = { name: myName, icon: selectedCreateMyEmoji };
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            updateHeaderProfileDisplay();
+            document.getElementById('lang1').value = myLang;
+            document.getElementById('lang2').value = myLang === 'en' ? 'th' : 'en';
+            updateSettings();
+            updateMyLanguageDisplay();
+            updateFilterBar();
+            renderList();
+        }
+        editingPairId = null;
+        document.getElementById('createPairModal').classList.remove('active');
+        openPairsManagerModal();
+        return;
+    }
+
+    // CREATE MODE — brand new pair.
     const pairId = generatePairCode();
     resetPairState();
     activePairId = pairId;
     DEVICE_ID = slotId(1);
     try {
         const batch = db.batch();
-        batch.set(col('users').doc('p1'), { name: myName, icon: selectedCreateMyEmoji, claimed: true });
-        batch.set(col('users').doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, claimed: false });
+        batch.set(col('users').doc('p1'), { name: myName, icon: selectedCreateMyEmoji, claimed: true, lang: myLang });
+        batch.set(col('users').doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, claimed: false, lang: partnerLang });
         batch.set(globalPairsRef.doc(pairId), { lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
         await batch.commit();
     } catch (e) {
@@ -870,10 +1056,36 @@ async function submitCreatePair() {
     userProfile = { name: myName, icon: selectedCreateMyEmoji };
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
     updateHeaderProfileDisplay();
+    document.getElementById('lang1').value = myLang;
+    document.getElementById('lang2').value = myLang === 'en' ? 'th' : 'en';
+    updateSettings();
+    updateMyLanguageDisplay();
     document.getElementById('createPairModal').classList.remove('active');
     finishPairSetup();
     renderList();
     alert(`Pair created! Code: ${pairId}\n\nUse "Manage Pairs" → Copy Link to send ${partnerName} their invite — they won't need to set up anything.`);
+}
+async function deletePairFromEditor() {
+    if (!editingPairId) return;
+    if (editingPairId === activePairId) { alert("Can't delete the pair you're currently using."); return; }
+    if (!confirm(`Permanently delete pair "${editingPairId}" and all its data?`)) return;
+    const btn = document.getElementById('deletePairBtn');
+    btn.textContent = '...'; btn.disabled = true;
+    try {
+        for (const name of ['activeList', 'savedRecallList', 'users']) {
+            const snap  = await globalPairsRef.doc(editingPairId).collection(name).get();
+            const batch = db.batch();
+            snap.docs.forEach(d => batch.delete(d.ref));
+            if (snap.docs.length) await batch.commit();
+        }
+        await globalPairsRef.doc(editingPairId).delete();
+        editingPairId = null;
+        document.getElementById('createPairModal').classList.remove('active');
+        openPairsManagerModal();
+    } catch (err) {
+        console.error(err); alert('Failed to delete pair.');
+        btn.textContent = '🗑️ Delete This Pair'; btn.disabled = false;
+    }
 }
 // ═══════════════════════════════════════════════════════════════════
 // ROLE CONFIRM / PLEASE WAIT
@@ -976,23 +1188,32 @@ async function renderPairsManagerList() {
 }
 function renderPairRow(id, cur, stale, slots, pairName) {
     const myRole = localStorage.getItem('myRole');
+    const iAmAdmin = cur && myRole === '1';
     const slotRow = (role) => {
         const s = slots['p' + role];
         const isMe = cur && String(role) === myRole;
+        const canEdit = iAmAdmin || isMe;
         if (!s || !s.claimed) {
-            const label = s?.name ? `${s.icon || '👤'} ${s.name} <em style="opacity:.6;">(not joined yet)</em>` : `<span style="opacity:.6;">Slot ${role}: <em>open</em></span>`;
+            const preFlag = s?.lang === 'th' ? ' 🇹🇭' : s?.lang === 'en' ? ' 🇬🇧' : '';
+            const label = s?.name ? `${s.icon || '👤'} ${s.name}${preFlag} <em style="opacity:.6;">(not joined yet)</em>` : `<span style="opacity:.6;">Slot ${role}: <em>open</em></span>`;
             return `<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12px;">
                 <span>${label}</span>
-                <button onclick="copyInviteLink('${id}',${role})" style="background:var(--col); color:var(--text); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🔗 Copy Link</button>
+                <span style="display:flex; gap:6px;">
+                    <button onclick="copyInviteLink('${id}',${role})" title="Copy invite link" style="background:var(--col); color:var(--text); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🔗</button>
+                    ${iAmAdmin ? `<button onclick="openEditPairModal('${id}')" title="Edit" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️</button>` : ''}
+                </span>
             </div>`;
         }
+        const flag = s.lang === 'th' ? '🇹🇭' : s.lang === 'en' ? '🇬🇧' : '';
         return `<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12px;">
-            <span>${s.icon || '👤'} ${s.name || 'Unnamed'}${isMe ? ' (you)' : ''}</span>
+            <span>${s.icon || '👤'} ${s.name || 'Unnamed'}${isMe ? ' (you)' : ''} ${flag}</span>
             <span style="display:flex; gap:6px;">
                 <button onclick="copyInviteLink('${id}',${role})" title="Recover link for this person" style="background:var(--col); color:var(--text); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🔗</button>
-                ${isMe
-                    ? `<button onclick="openProfileModal('Edit your profile', true)" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️ Edit</button>`
-                    : `<button onclick="removeSlot('${id}',${role})" style="background:#dc3545; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Remove</button>`}
+                ${canEdit
+                    ? (iAmAdmin
+                        ? `<button onclick="openEditPairModal('${id}')" title="Edit" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️</button>`
+                        : `<button onclick="openProfileModal('Edit your profile', true)" title="Edit" style="background:var(--accent); color:var(--bg); border:none; padding:4px 9px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✏️</button>`)
+                    : ''}
             </span>
         </div>`;
     };
@@ -1010,10 +1231,6 @@ function renderPairRow(id, cur, stale, slots, pairName) {
                 <button onclick="joinPair('${id}')" ${cur ? 'disabled' : ''}
                         style="background:${cur ? 'var(--col)' : 'var(--accent)'}; color:var(--bg); border:none; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; opacity:${cur ? '.4' : '1'};">
                     Join
-                </button>
-                <button onclick="deletePairConfirm('${id}',this)" ${cur ? 'disabled' : ''}
-                        style="background:#dc3545; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; opacity:${cur ? '.3' : '1'};">
-                    Delete
                 </button>
             </div>
             <div style="border-top:1px solid var(--col); margin-top:4px;">
@@ -1033,15 +1250,6 @@ function copyInviteLink(pairId, role) {
         prompt('Copy this link:', link);
     });
 }
-async function removeSlot(pairId, role) {
-    if (!confirm('Remove this person from the pair? They can rejoin later with the invite link.')) return;
-    try {
-        await globalPairsRef.doc(pairId).collection('users').doc('p' + role).delete();
-        renderPairsManagerList();
-    } catch (e) {
-        alert('Could not remove: ' + e.message);
-    }
-}
 async function renamePair(pairId) {
     let current = '';
     try {
@@ -1052,24 +1260,6 @@ async function renamePair(pairId) {
     if (name === null) return;
     await globalPairsRef.doc(pairId).set({ pairName: name.trim() }, { merge: true });
     renderPairsManagerList();
-}
-async function deletePairConfirm(pairId, btn) {
-    if (pairId === activePairId) { alert("Can't delete the active pair."); return; }
-    if (!confirm(`Permanently delete pair "${pairId}" and all its data?`)) return;
-    btn.textContent = '...'; btn.disabled = true;
-    try {
-        for (const name of ['activeList', 'savedRecallList', 'users']) {
-            const snap  = await globalPairsRef.doc(pairId).collection(name).get();
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            if (snap.docs.length) await batch.commit();
-        }
-        await globalPairsRef.doc(pairId).delete();
-        renderPairsManagerList();
-    } catch (err) {
-        console.error(err); alert('Failed to delete pair.');
-        btn.textContent = 'Delete'; btn.disabled = false;
-    }
 }
 // ═══════════════════════════════════════════════════════════════════
 // PROFILE
@@ -1155,6 +1345,9 @@ function saveCategoryModalChanges() {
     if (!active.length) { alert('Keep at least one category.'); return; }
     localStorage.setItem('masterCategoryPool', JSON.stringify(modalCategoryState.map(c => c.name)));
     document.getElementById('settingsCategories').value = active.join(', ');
+    // The category set changed — the Thai line no longer lines up positionally.
+    // Clear it so it's obviously stale rather than silently wrong; re-tap ✨ to refresh.
+    document.getElementById('settingsCategoriesTh').value = '';
     updateSettings(); updateFilterBar(); renderList();
     closeCategoryModal();
 }
@@ -1268,7 +1461,7 @@ function deleteSavedRecallItem(id) {
 function renderModalItems() {
     const container = document.getElementById('modalItemsContainer');
     if (!savedRecallList.length) { container.innerHTML = '<p style="text-align:center; opacity:.5;">No favorites yet. Swipe right on a list item to save it.</p>'; return; }
-    const cats   = getParsedCategories();
+    const cats   = getParsedCategories().map(c => c.en);
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
     savedRecallList.forEach(item => { const c = item.category||'General'; (groups[c]??groups['General']).push(item); });
@@ -1276,10 +1469,10 @@ function renderModalItems() {
     Object.entries(groups).forEach(([cat, items]) => {
         if (!items.length) return;
         html += `<div style="margin-top:15px; margin-bottom:5px; border-bottom:1px solid var(--col); padding-bottom:4px;">
-                    <span style="font-weight:bold; color:var(--accent); font-size:13px; text-transform:uppercase; letter-spacing:.5px;">📦 ${cat}</span>
+                    <span style="font-weight:bold; color:var(--accent); font-size:13px; text-transform:uppercase; letter-spacing:.5px;">📦 ${catLabel(cat)}</span>
                  </div><div style="display:flex; flex-direction:column; gap:4px;">`;
         items.forEach(item => {
-            const opts = cats.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${c}</option>`).join('');
+            const opts = cats.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${catLabel(c)}</option>`).join('');
             html += `
                 <div class="modal-swipe-row" data-modal-item-id="${item.id}">
                     <div class="swipe-delete-bg" onclick="deleteSavedRecallItem('${item.id}')">Delete</div>
@@ -1418,7 +1611,7 @@ function createNewBlankRow() {
         id: 'local-' + Date.now(), l1: '', l2: '', qty: 1,
         isEditing: true, checked: false, saved: false,
         addedBy: userProfile.name, addedIcon: userProfile.icon,
-        category: getParsedCategories()[0] || 'General'
+        category: getParsedCategories()[0]?.en || 'General'
     });
     renderList();
 }
@@ -1471,6 +1664,25 @@ function saveSplitInputs(id) {
         const typedIsThai = /[\u0E00-\u0E7F]/.test(rawText);
         const srcLang = typedIsThai ? 'th' : 'en';
         const tgtLang = typedIsThai ? 'en' : 'th';
+        // First item ever typed on this device: if what they actually typed
+        // doesn't match the device's assumed primary language (locale
+        // detection can be wrong — e.g. an English-locale phone with a Thai
+        // keyboard), quietly align Settings to match instead of forcing a
+        // manual trip to Settings. Only runs once; manual choices afterward
+        // are always respected.
+        if (!localStorage.getItem('langAutoDetected')) {
+            localStorage.setItem('langAutoDetected', '1');
+            if (document.getElementById('lang1').value !== srcLang) {
+                document.getElementById('lang1').value = srcLang;
+                document.getElementById('lang2').value = tgtLang;
+                updateSettings();
+                updateFilterBar();
+                updateMyLanguageDisplay();
+                if (activePairId && DEVICE_ID) {
+                    col('users').doc(DEVICE_ID).set({ lang: srcLang }, { merge: true }).catch(() => {});
+                }
+            }
+        }
         fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${srcLang}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(rawText)}`)
             .then(r => r.json())
             .then(async data => {
@@ -1505,6 +1717,27 @@ function saveSplitInputs(id) {
 // ═══════════════════════════════════════════════════════════════════
 // FILTER BAR
 // ═══════════════════════════════════════════════════════════════════
+// Re-sends the primary-language text through the same Google Translate
+// call used for new items, overwriting just the translation side.
+async function retranslateItem(id) {
+    const item = currentItems.find(i => i.id === id);
+    if (!item) return;
+    const lang1 = document.getElementById('lang1').value;
+    const lang2 = document.getElementById('lang2').value;
+    const langA = lang1 < lang2 ? lang1 : lang2;
+    const c1 = lang1 === langA ? item.l1 : item.l2;
+    if (!c1) return;
+    try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang1}&tl=${lang2}&dt=t&q=${encodeURIComponent(c1)}`);
+        const data = await res.json();
+        const translated = data?.[0]?.[0]?.[0] ?? null;
+        if (!translated) { alert('Re-translation failed — try again.'); return; }
+        const payload = lang2 === langA ? { l1: translated } : { l2: translated };
+        await col('activeList').doc(id).update(payload);
+    } catch (e) {
+        alert('Re-translation failed: ' + e.message);
+    }
+}
 function setFilter(cat, btnEl) {
     currentFilter = cat;
     document.querySelectorAll('#filterBar .chip').forEach(el => {
@@ -1522,9 +1755,9 @@ function updateFilterBar() {
     let html = `<button class="chip" onclick="setFilter('All',this)"
                         style="background:${active==='All'?'var(--accent)':'var(--col)'}; color:${active==='All'?'var(--bg)':'var(--text)'};">All</button>`;
     cats.forEach(cat => {
-        const on = (cat === active);
-        html += `<button class="chip" onclick="setFilter('${cat}',this)"
-                         style="background:${on?'var(--accent)':'var(--col)'}; color:${on?'var(--bg)':'var(--text)'};">${cat}</button>`;
+        const on = (cat.en === active);
+        html += `<button class="chip" onclick="setFilter('${cat.en}',this)"
+                         style="background:${on?'var(--accent)':'var(--col)'}; color:${on?'var(--bg)':'var(--text)'};">${catLabel(cat.en)}</button>`;
     });
     bar.innerHTML = html;
 }
@@ -1545,7 +1778,7 @@ function renderList() {
         container.innerHTML = '<p style="text-align:center; opacity:.5; margin-top:40px;">List is empty. Tap + to start.</p>';
         return;
     }
-    const cats   = getParsedCategories();
+    const cats   = getParsedCategories().map(c => c.en);
     const groups = Object.fromEntries(cats.map(c => [c, []]));
     if (!groups['General']) groups['General'] = [];
     allVisible.forEach(item => {
@@ -1557,7 +1790,7 @@ function renderList() {
     Object.entries(groups).forEach(([catKey, items]) => {
         if (!items.length) return;
         if (categoriesEnabled) {
-            html += `<div style="background:var(--bg); padding:6px 10px; font-weight:bold; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--col); margin-top:8px;">📦 ${catKey}</div>`;
+            html += `<div style="background:var(--bg); padding:6px 10px; font-weight:bold; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--col); margin-top:8px;">📦 ${catLabel(catKey)}</div>`;
         }
         items.forEach(item => {
             const c1 = lang1 === langA ? item.l1 : item.l2;
@@ -1606,8 +1839,9 @@ function renderList() {
                                 ${badge}<span title="${c1||''}">${c1||'[Blank]'}${qty}${si}</span>
                             </div>
                             <div style="width:28px; flex-shrink:0;"></div>
-                            <div class="col-trans ${scratch}" style="width:var(--col-trans-pct); max-width:var(--col-trans-pct);">
-                                <span title="${c2||''}">${c2||''}</span>
+                            <div class="col-trans ${scratch}" style="width:var(--col-trans-pct); max-width:var(--col-trans-pct); display:flex; align-items:center; gap:4px;">
+                                <span title="${c2||''}" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;">${c2||''}</span>
+                                <button onclick="event.stopPropagation(); retranslateItem('${item.id}');" title="Re-translate" style="background:none; border:none; font-size:12px; opacity:.5; cursor:pointer; flex-shrink:0; padding:2px;">🔄</button>
                             </div>
                         </div>
                     </div>`;
@@ -1683,6 +1917,7 @@ async function exportData() {
         exportedAt:      new Date().toISOString(),
         pairId:          activePairId,
         categories:      document.getElementById('settingsCategories').value.trim(),
+        categoriesTh:    document.getElementById('settingsCategoriesTh').value.trim(),
         activeList:      as.docs.map(d => ({ id: d.id, ...d.data() })),
         savedRecallList: ss.docs.map(d => ({ id: d.id, ...d.data() }))
     };
@@ -1727,6 +1962,7 @@ async function importData() {
         const batch   = db.batch();
         if (payload.categories) {
             document.getElementById('settingsCategories').value = payload.categories;
+            document.getElementById('settingsCategoriesTh').value = payload.categoriesTh || '';
             updateSettings(); updateFilterBar();
         }
         if (payload.activeList) {
@@ -1765,14 +2001,16 @@ async function init() {
     const otherLang   = deviceLang === 'en' ? 'th' : 'en';
     const prefs = JSON.parse(localStorage.getItem('appPrefs') || 'null');
     if (prefs) {
-        document.getElementById('themeSelect').value        = prefs.theme      || 'nordic-frost';
-        document.getElementById('lang1').value              = prefs.lang1      || deviceLang;
-        document.getElementById('lang2').value              = prefs.lang2      || otherLang;
-        document.getElementById('settingsCategories').value = prefs.categories || DEFAULT_CATEGORIES;
+        document.getElementById('themeSelect').value          = prefs.theme        || 'nordic-frost';
+        document.getElementById('lang1').value                = prefs.lang1        || deviceLang;
+        document.getElementById('lang2').value                = prefs.lang2        || otherLang;
+        document.getElementById('settingsCategories').value   = prefs.categories   || DEFAULT_CATEGORIES;
+        document.getElementById('settingsCategoriesTh').value = prefs.categoriesTh || DEFAULT_CATEGORIES_TH;
     } else {
-        document.getElementById('lang1').value              = deviceLang;
-        document.getElementById('lang2').value              = otherLang;
-        document.getElementById('settingsCategories').value = DEFAULT_CATEGORIES;
+        document.getElementById('lang1').value                = deviceLang;
+        document.getElementById('lang2').value                = otherLang;
+        document.getElementById('settingsCategories').value   = DEFAULT_CATEGORIES;
+        document.getElementById('settingsCategoriesTh').value = DEFAULT_CATEGORIES_TH;
     }
     // Safety: never let both columns show the same language (this is what
     // causes a "Thai and Thai" entry) — fall back to the device's own
@@ -1790,6 +2028,7 @@ async function init() {
     initDividerDrag();
     applyTransFontSize();
     updateFilterBar();
+    startTitleCycle();
     // Online status indicator — independent of pairing, always runs
     const updateOnlineStatus = () => {
         const indicator = document.getElementById('onlineIndicator');
@@ -1817,6 +2056,35 @@ async function init() {
     await bindToSlot(boot.pairId, boot.role);
     finishPairSetup();
 }
+// ═══════════════════════════════════════════════════════════════════
+// HARDWARE BACK BUTTON — close open modal/dropdown instead of exiting;
+// confirm before actually exiting the app when nothing is open.
+// ═══════════════════════════════════════════════════════════════════
+function pushBackGuardState() {
+    history.pushState({ appGuard: true }, '', '');
+}
+window.addEventListener('popstate', () => {
+    const openModal = document.querySelector('.modal-overlay.active');
+    if (openModal) {
+        openModal.classList.remove('active');
+        pushBackGuardState();
+        return;
+    }
+    const settingsOpen = document.getElementById('settingsDropdown').style.display === 'block';
+    const actionsOpen  = document.getElementById('actionsDropdown').style.display === 'block';
+    if (settingsOpen || actionsOpen) {
+        document.getElementById('settingsDropdown').style.display = 'none';
+        document.getElementById('actionsDropdown').style.display  = 'none';
+        pushBackGuardState();
+        return;
+    }
+    if (confirm('Exit Shopping Translator?')) {
+        // Nothing open, confirmed — let this back proceed naturally.
+        return;
+    }
+    pushBackGuardState();
+});
+pushBackGuardState();
 init();
 </script>
 </body>
