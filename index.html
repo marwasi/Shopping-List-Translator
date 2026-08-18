@@ -7,6 +7,13 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#61afef">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         :root, .nordic-frost   { --bg:#1e222a; --card:#282c34; --col:#3e4451; --text-muted:#abb2bf; --text:#fff; --accent:#61afef; }
