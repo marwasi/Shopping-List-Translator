@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "io.github.marwasi.twa",
-        "sha256_cert_fingerprints": ["45:A8:23:C5:56:7D:1D:BA:9F:1F:69:85:30:B5:2A:C8:5E:C2:65:75:B2:A1:85:E8:7C:0F:E8:29:14:FA:C7:24"]
+        "package_name": "dev.workers.mawasith.shopping_list_translator.twa",
+        "sha256_cert_fingerprints": ["B5:98:94:EA:C1:C7:82:34:F7:1E:B8:94:CE:40:49:A6:75:DD:93:21:9A:B7:D5:42:B1:88:5E:B8:A2:DB:D3:B8"]
       }
     }]
