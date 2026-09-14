@@ -143,7 +143,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.30</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.31</div>
         </div>
         <div class="header-title-block">
             <h2 id="appTitle">Shopping Translator</h2>
@@ -328,6 +328,15 @@
         <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:6px;">Partner's Phone (optional):</label>
         <input type="tel" id="createPartnerPhone" class="row-input" placeholder="e.g. 0812345678" style="width:95%; margin-bottom:16px;">
         <button id="createPairSubmitBtn" class="modal-close-btn" onclick="submitCreatePair()">Create Pair</button>
+        <div id="retrievePairSection" style="margin-top:10px;">
+            <div id="retrievePairToggle" style="text-align:center; font-size:12px; color:var(--accent); cursor:pointer; text-decoration:underline;" onclick="toggleRetrievePairSection()">
+                Already have a pair? Retrieve by phone
+            </div>
+            <div id="retrievePairForm" style="display:none; margin-top:10px;">
+                <input type="tel" id="retrievePhoneInput" class="row-input" placeholder="Phone number used on your pair" style="width:95%; margin-bottom:8px;">
+                <button id="retrievePairBtn" class="modal-close-btn" style="background:var(--col);" onclick="retrievePairByPhone()">Retrieve My Pair</button>
+            </div>
+        </div>
         <button id="deletePairBtn" onclick="deletePairFromEditor()" style="display:none; width:100%; margin-top:10px; background:#dc3545; color:#fff; border:none; padding:9px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">
             🗑️ Delete This Pair
         </button>
@@ -385,7 +394,7 @@
 // ═══════════════════════════════════════════════════════════════════
 const PROXY_URL      = 'https://apishopperbounce.mawasith.workers.dev';
 const GROQ_ENDPOINT  = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL     = 'openai/gpt-oss-120b';
+const GROQ_MODEL     = 'llama-3.3-70b-versatile';
 const DARK_THEMES    = ['monochrome-high','midnight-abyss','cyber-punk'];
 const THEMES         = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
 const AVATAR_OPTIONS = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
@@ -629,6 +638,37 @@ async function bindToSlot(pairId, role) {
     }
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
     updateHeaderProfileDisplay();
+}
+function toggleRetrievePairSection() {
+    const form = document.getElementById('retrievePairForm');
+    form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+}
+// Convenience-only recovery, not real security (same tradeoff already
+// accepted by storing phone at all): looks up whichever slot has this
+// phone number saved and rebinds this device to it via bindToSlot,
+// exactly as an invite link would.
+async function retrievePairByPhone() {
+    const raw = document.getElementById('retrievePhoneInput').value.trim();
+    if (!raw) { alert('Enter the phone number used when the pair was set up.'); return; }
+    showPleaseWaitModal();
+    let match = null;
+    try {
+        const snap = await db.collectionGroup('users').where('phone', '==', raw).limit(1).get();
+        if (!snap.empty) {
+            const doc = snap.docs[0];
+            match = { pairId: doc.ref.parent.parent.id, role: parseInt(doc.id.replace('p', ''), 10) };
+        }
+    } catch (e) {
+        hidePleaseWaitModal();
+        alert('Could not search for a pair: ' + e.message);
+        return;
+    }
+    hidePleaseWaitModal();
+    if (!match) { alert('No pair found with that phone number.'); return; }
+    document.getElementById('createPairModal').classList.remove('active');
+    await bindToSlot(match.pairId, match.role);
+    finishPairSetup();
+    renderList();
 }
 // Runs the one-time-per-load housekeeping once a pair binding is settled
 // (whether that happened silently, via Create Pair, or via a confirm tap).
@@ -980,6 +1020,9 @@ function openCreatePairModal(dismissible = false) {
     renderCreatePairEmojiGrids();
     const closeRow = document.getElementById('createPairCloseRow');
     if (closeRow) closeRow.style.display = dismissible ? 'flex' : 'none';
+    document.getElementById('retrievePairSection').style.display = 'block';
+    document.getElementById('retrievePairForm').style.display = 'none';
+    document.getElementById('retrievePhoneInput').value = '';
     document.getElementById('createPairModal').classList.add('active');
 }
 // Role-1 only: edit BOTH people's name/icon/language for a pair, plus delete it.
@@ -1010,6 +1053,7 @@ async function openEditPairModal(pairId) {
     selectedCreatePartnerEmoji = p2.icon || '👩';
     renderCreatePairEmojiGrids();
     document.getElementById('createPairCloseRow').style.display = 'flex';
+    document.getElementById('retrievePairSection').style.display = 'none';
     document.getElementById('createPairModal').classList.add('active');
 }
 function closeCreatePairModal() {
