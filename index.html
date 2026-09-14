@@ -143,7 +143,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.29</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.30</div>
         </div>
         <div class="header-title-block">
             <h2 id="appTitle">Shopping Translator</h2>
@@ -287,6 +287,8 @@
         <p id="profileModalSubtext" style="text-align:center; font-size:13px; opacity:.7; margin-top:-8px; margin-bottom:14px;"></p>
         <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:6px;">Your Name:</label>
         <input type="text" id="profileNameInput" class="row-input" placeholder="Your name..." style="width:95%; margin-bottom:15px;">
+        <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:6px;">Phone Number (optional):</label>
+        <input type="tel" id="profilePhoneInput" class="row-input" placeholder="e.g. 0812345678" style="width:95%; margin-bottom:15px;">
         <label style="font-size:14px; font-weight:bold; display:block;">Choose an Avatar:</label>
         <div class="emoji-grid" id="profileEmojiGrid"></div>
         <button class="modal-close-btn" onclick="saveProfile()">Save Profile</button>
@@ -306,21 +308,25 @@
         <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:6px;">Your Name:</label>
         <input type="text" id="createMyName" class="row-input" placeholder="e.g. Mark" style="width:95%; margin-bottom:8px;">
         <div class="emoji-grid" id="createMyEmojiGrid" style="margin-bottom:8px;"></div>
-        <label style="font-size:12px; display:block; margin-bottom:16px;">Your Language:
+        <label style="font-size:12px; display:block; margin-bottom:8px;">Your Language:
             <select id="createMyLang" style="margin-left:6px;">
                 <option value="en">English</option>
                 <option value="th">Thai</option>
             </select>
         </label>
+        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:6px;">Your Phone (optional):</label>
+        <input type="tel" id="createMyPhone" class="row-input" placeholder="e.g. 0812345678" style="width:95%; margin-bottom:16px;">
         <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:6px;">Partner's Name:</label>
         <input type="text" id="createPartnerName" class="row-input" placeholder="e.g. Mali" style="width:95%; margin-bottom:8px;">
         <div class="emoji-grid" id="createPartnerEmojiGrid" style="margin-bottom:8px;"></div>
-        <label style="font-size:12px; display:block; margin-bottom:16px;">Partner's Language:
+        <label style="font-size:12px; display:block; margin-bottom:8px;">Partner's Language:
             <select id="createPartnerLang" style="margin-left:6px;">
                 <option value="th">Thai</option>
                 <option value="en">English</option>
             </select>
         </label>
+        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:6px;">Partner's Phone (optional):</label>
+        <input type="tel" id="createPartnerPhone" class="row-input" placeholder="e.g. 0812345678" style="width:95%; margin-bottom:16px;">
         <button id="createPairSubmitBtn" class="modal-close-btn" onclick="submitCreatePair()">Create Pair</button>
         <button id="deletePairBtn" onclick="deletePairFromEditor()" style="display:none; width:100%; margin-top:10px; background:#dc3545; color:#fff; border:none; padding:9px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">
             🗑️ Delete This Pair
@@ -379,7 +385,7 @@
 // ═══════════════════════════════════════════════════════════════════
 const PROXY_URL      = 'https://apishopperbounce.mawasith.workers.dev';
 const GROQ_ENDPOINT  = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL     = 'llama-3.3-70b-versatile';
+const GROQ_MODEL     = 'openai/gpt-oss-120b';
 const DARK_THEMES    = ['monochrome-high','midnight-abyss','cyber-punk'];
 const THEMES         = ['nordic-frost','material-charcoal','dracula-classic','monochrome-high','midnight-abyss','cyber-punk'];
 const AVATAR_OPTIONS = ['🛒','🧔','👩','🍲','🛍️','🌶️','🥦','🥩','☕','🐱'];
@@ -607,7 +613,7 @@ async function bindToSlot(pairId, role) {
     attachFirestoreListeners();
     try {
         const snap = await col('users').doc(DEVICE_ID).get();
-        userProfile = snap.exists ? { name: snap.data().name || 'User', icon: snap.data().icon || '🛒' } : { name: 'User', icon: '🛒' };
+        userProfile = snap.exists ? { name: snap.data().name || 'User', icon: snap.data().icon || '🛒', phone: snap.data().phone || '' } : { name: 'User', icon: '🛒', phone: '' };
         const storedLang = snap.exists ? snap.data().lang : null;
         if (storedLang === 'en' || storedLang === 'th') {
             document.getElementById('lang1').value = storedLang;
@@ -888,11 +894,17 @@ async function backgroundRecategorize() {
 // ═══════════════════════════════════════════════════════════════════
 function toggleDropdown() {
     const m = document.getElementById('settingsDropdown');
-    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    const other = document.getElementById('actionsDropdown');
+    const opening = m.style.display !== 'block';
+    other.style.display = 'none';
+    m.style.display = opening ? 'block' : 'none';
 }
 function toggleActionsDropdown() {
     const m = document.getElementById('actionsDropdown');
-    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    const other = document.getElementById('settingsDropdown');
+    const opening = m.style.display !== 'block';
+    other.style.display = 'none';
+    m.style.display = opening ? 'block' : 'none';
 }
 document.addEventListener('click', e => {
     if (!e.target.matches('.kebab-btn') && !e.target.closest('.dropdown-menu')) {
@@ -959,6 +971,8 @@ function openCreatePairModal(dismissible = false) {
     document.getElementById('deletePairBtn').style.display = 'none';
     document.getElementById('createMyName').value = '';
     document.getElementById('createPartnerName').value = '';
+    document.getElementById('createMyPhone').value = '';
+    document.getElementById('createPartnerPhone').value = '';
     document.getElementById('createMyLang').value = detectDeviceLang();
     document.getElementById('createPartnerLang').value = detectDeviceLang() === 'en' ? 'th' : 'en';
     selectedCreateMyEmoji = '🛒';
@@ -988,6 +1002,8 @@ async function openEditPairModal(pairId) {
     document.getElementById('deletePairBtn').style.display = (pairId === activePairId) ? 'none' : 'block';
     document.getElementById('createMyName').value = p1.name || '';
     document.getElementById('createPartnerName').value = p2.name || '';
+    document.getElementById('createMyPhone').value = p1.phone || '';
+    document.getElementById('createPartnerPhone').value = p2.phone || '';
     document.getElementById('createMyLang').value = p1.lang || 'en';
     document.getElementById('createPartnerLang').value = p2.lang || 'th';
     selectedCreateMyEmoji = p1.icon || '🛒';
@@ -1009,6 +1025,8 @@ function selectCreateEmoji(btnEl, emoji, who) {
 async function submitCreatePair() {
     const myName = document.getElementById('createMyName').value.trim();
     const partnerName = document.getElementById('createPartnerName').value.trim();
+    const myPhone = document.getElementById('createMyPhone').value.trim();
+    const partnerPhone = document.getElementById('createPartnerPhone').value.trim();
     const myLang = document.getElementById('createMyLang').value;
     const partnerLang = document.getElementById('createPartnerLang').value;
     if (!myName) { alert('Please enter your name.'); return; }
@@ -1020,8 +1038,8 @@ async function submitCreatePair() {
         try {
             const batch = db.batch();
             const ref = globalPairsRef.doc(targetPairId).collection('users');
-            batch.set(ref.doc('p1'), { name: myName, icon: selectedCreateMyEmoji, lang: myLang }, { merge: true });
-            batch.set(ref.doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, lang: partnerLang }, { merge: true });
+            batch.set(ref.doc('p1'), { name: myName, icon: selectedCreateMyEmoji, lang: myLang, phone: myPhone }, { merge: true });
+            batch.set(ref.doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, lang: partnerLang, phone: partnerPhone }, { merge: true });
             await batch.commit();
         } catch (e) { alert('Failed to save changes: ' + e.message); return; }
         if (targetPairId === activePairId) {
@@ -1049,8 +1067,8 @@ async function submitCreatePair() {
     DEVICE_ID = slotId(1);
     try {
         const batch = db.batch();
-        batch.set(col('users').doc('p1'), { name: myName, icon: selectedCreateMyEmoji, claimed: true, lang: myLang });
-        batch.set(col('users').doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, claimed: false, lang: partnerLang });
+        batch.set(col('users').doc('p1'), { name: myName, icon: selectedCreateMyEmoji, claimed: true, lang: myLang, phone: myPhone });
+        batch.set(col('users').doc('p2'), { name: partnerName, icon: selectedCreatePartnerEmoji, claimed: false, lang: partnerLang, phone: partnerPhone });
         batch.set(globalPairsRef.doc(pairId), { lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
         await batch.commit();
     } catch (e) {
@@ -1072,6 +1090,15 @@ async function submitCreatePair() {
     renderList();
     alert(`Pair created! Code: ${pairId}\n\nUse "Manage Pairs" → Copy Link to send ${partnerName} their invite — they won't need to set up anything.`);
 }
+async function deletePairRecords(pairId) {
+    for (const name of ['activeList', 'savedRecallList', 'users']) {
+        const snap  = await globalPairsRef.doc(pairId).collection(name).get();
+        const batch = db.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        if (snap.docs.length) await batch.commit();
+    }
+    await globalPairsRef.doc(pairId).delete();
+}
 async function deletePairFromEditor() {
     if (!editingPairId) return;
     if (editingPairId === activePairId) { alert("Can't delete the pair you're currently using."); return; }
@@ -1079,19 +1106,23 @@ async function deletePairFromEditor() {
     const btn = document.getElementById('deletePairBtn');
     btn.textContent = '...'; btn.disabled = true;
     try {
-        for (const name of ['activeList', 'savedRecallList', 'users']) {
-            const snap  = await globalPairsRef.doc(editingPairId).collection(name).get();
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            if (snap.docs.length) await batch.commit();
-        }
-        await globalPairsRef.doc(editingPairId).delete();
+        await deletePairRecords(editingPairId);
         editingPairId = null;
         document.getElementById('createPairModal').classList.remove('active');
         openPairsManagerModal();
     } catch (err) {
         console.error(err); alert('Failed to delete pair.');
         btn.textContent = '🗑️ Delete This Pair'; btn.disabled = false;
+    }
+}
+async function deletePairDirect(pairId) {
+    if (pairId === activePairId) { alert("Can't delete the pair you're currently using."); return; }
+    if (!confirm(`Permanently delete pair "${pairId}" and all its data?`)) return;
+    try {
+        await deletePairRecords(pairId);
+        renderPairsManagerList();
+    } catch (err) {
+        console.error(err); alert('Failed to delete pair.');
     }
 }
 // ═══════════════════════════════════════════════════════════════════
@@ -1239,6 +1270,7 @@ function renderPairRow(id, cur, stale, slots, pairName) {
                         style="background:${cur ? 'var(--col)' : 'var(--accent)'}; color:var(--bg); border:none; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; opacity:${cur ? '.4' : '1'};">
                     Join
                 </button>
+                ${!cur ? `<button onclick="deletePairDirect('${id}')" title="Delete pair" style="background:#dc3545; color:#fff; border:none; padding:5px 9px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">🗑️</button>` : ''}
             </div>
             <div style="border-top:1px solid var(--col); margin-top:4px;">
                 ${slotRow(1)}
@@ -1278,6 +1310,7 @@ function openProfileModal(subtext = '', dismissible = false) {
                  onclick="selectProfileEmoji(this,'${emoji}')">${emoji}</button>`
     ).join('');
     document.getElementById('profileNameInput').value = userProfile.name !== 'User' ? userProfile.name : '';
+    document.getElementById('profilePhoneInput').value = userProfile.phone || '';
     document.getElementById('profileModalSubtext').textContent = subtext;
     const closeRow = document.getElementById('profileModalCloseRow');
     if (closeRow) closeRow.style.display = dismissible ? 'flex' : 'none';
@@ -1291,7 +1324,8 @@ function selectProfileEmoji(btnEl, emoji) {
 async function saveProfile() {
     const raw = document.getElementById('profileNameInput').value.trim();
     if (!raw) { alert('Please enter a name!'); return; }
-    userProfile = { name: raw, icon: selectedProfileEmoji };
+    const phoneRaw = document.getElementById('profilePhoneInput').value.trim();
+    userProfile = { name: raw, icon: selectedProfileEmoji, phone: phoneRaw };
     localStorage.setItem('userProfile', JSON.stringify(userProfile));
     try {
         await col('users').doc(DEVICE_ID).set(userProfile, { merge: true });
@@ -1872,7 +1906,7 @@ function renderList() {
     });
 }
 // ═══════════════════════════════════════════════════════════════════
-// FIRESTORE LISTENERS.
+// FIRESTORE LISTENERS
 // ═══════════════════════════════════════════════════════════════════
 function attachFirestoreListeners() {
     if (unsubActiveList) unsubActiveList();
