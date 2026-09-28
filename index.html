@@ -143,7 +143,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.31</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.32</div>
         </div>
         <div class="header-title-block">
             <h2 id="appTitle">Shopping Translator</h2>
@@ -1530,7 +1530,7 @@ function closeSavedModal() {
         if (!currentItems.some(c => c.l1 === item.l1 || c.l2 === item.l2)) {
             col('activeList').add({
                 l1: item.l1, l2: item.l2, qty: item.qty||1,
-                category: item.category||'General',
+                category: item.category||'General', photo: item.photo||null,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 isEditing: false, checked: false, saved: true,
                 addedBy: userProfile.name, addedIcon: userProfile.icon
@@ -1583,6 +1583,68 @@ function renderModalItems() {
 // ═══════════════════════════════════════════════════════════════════
 // SWIPE ACTIONS
 // ═══════════════════════════════════════════════════════════════════
+// ── ITEM PHOTOS ──
+function pickItemPhoto(id) {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = () => { if (inp.files[0]) setItemPhoto(id, inp.files[0]); };
+    inp.click();
+}
+function compressPhoto(file, max = 640, q = 0.7) {
+    return new Promise((res, rej) => {
+        const url = URL.createObjectURL(file), img = new Image();
+        img.onload = () => {
+            const s = Math.min(1, max / Math.max(img.width, img.height));
+            const c = document.createElement('canvas');
+            c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            res(c.toDataURL('image/jpeg', q));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Bad image')); };
+        img.src = url;
+    });
+}
+async function setItemPhoto(id, file) {
+    try {
+        const photo = await compressPhoto(file);
+        await col('activeList').doc(id).update({ photo });
+        const item = currentItems.find(i => i.id === id);
+        if (item && item.saved) col('savedRecallList').doc(id).update({ photo }).catch(() => {});
+        closePhotoViewer();
+    } catch (e) { alert('Photo failed: ' + e.message); }
+}
+async function removeItemPhoto(id) {
+    const del = firebase.firestore.FieldValue.delete();
+    await col('activeList').doc(id).update({ photo: del });
+    const item = currentItems.find(i => i.id === id);
+    if (item && item.saved) col('savedRecallList').doc(id).update({ photo: del }).catch(() => {});
+    closePhotoViewer();
+}
+function openPhotoViewer(id) {
+    const item = currentItems.find(i => i.id === id);
+    if (!item || !item.photo) return;
+    let m = document.getElementById('photoViewerModal');
+    if (!m) {
+        m = document.createElement('div');
+        m.id = 'photoViewerModal'; m.className = 'modal-overlay';
+        m.onclick = e => { if (e.target === m) closePhotoViewer(); };
+        document.body.appendChild(m);
+    }
+    m.innerHTML = `<div class="modal-content" style="max-width:360px; text-align:center;">
+        <img src="${item.photo}" style="max-width:100%; max-height:60vh; border-radius:8px;">
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="modal-close-btn" style="margin-top:0; flex:1;" onclick="pickItemPhoto('${id}')">📷 Replace</button>
+            <button class="modal-close-btn" style="margin-top:0; flex:1; background:#dc3545; color:#fff;" onclick="removeItemPhoto('${id}')">🗑️ Remove</button>
+        </div>
+        <button class="modal-close-btn" style="background:var(--col); color:var(--text);" onclick="closePhotoViewer()">Close</button>
+    </div>`;
+    m.classList.add('active');
+}
+function closePhotoViewer() {
+    const m = document.getElementById('photoViewerModal');
+    if (m) m.classList.remove('active');
+}
 function swipeAction(id, action) {
     closeSwipeRow(id);
     if (action === 'save')   toggleSaveRecallState(id);
@@ -1714,7 +1776,7 @@ function toggleSaveRecallState(id) {
     if (!item) return;
     const ns = !item.saved;
     col('activeList').doc(id).update({ saved: ns });
-    if (ns) col('savedRecallList').doc(id).set({ l1: item.l1, l2: item.l2, qty: item.qty||1, id, category: item.category||'General' });
+    if (ns) col('savedRecallList').doc(id).set({ l1: item.l1, l2: item.l2, qty: item.qty||1, id, category: item.category||'General', photo: item.photo||null });
     else    col('savedRecallList').doc(id).delete();
 }
 // ═══════════════════════════════════════════════════════════════════
@@ -1796,7 +1858,7 @@ function saveSplitInputs(id) {
             else                 { val2 = rawText; payload.l2 = rawText; }
         }
         col('activeList').doc(id).update(payload).then(() => {
-            if (itemMatch.saved) col('savedRecallList').doc(id).set({ l1: val1, l2: val2, qty, id, category: itemMatch.category||'General' });
+            if (itemMatch.saved) col('savedRecallList').doc(id).set({ l1: val1, l2: val2, qty, id, category: itemMatch.category||'General', photo: itemMatch.photo||null });
         }).finally(() => processingIds.delete(id));
     }
 }
@@ -1928,6 +1990,7 @@ function renderList() {
                             <div class="col-trans ${scratch}" style="width:var(--col-trans-pct); max-width:var(--col-trans-pct); display:flex; align-items:center; gap:4px;">
                                 <span title="${c2||''}" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;">${c2||''}</span>
                                 <button onclick="event.stopPropagation(); retranslateItem('${item.id}');" title="Re-translate" style="background:none; border:none; font-size:12px; opacity:.5; cursor:pointer; flex-shrink:0; padding:2px;">🔄</button>
+                                <button ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" onclick="event.stopPropagation(); ${item.photo ? `openPhotoViewer('${item.id}')` : `pickItemPhoto('${item.id}')`};" title="Photo" style="background:none; border:none; font-size:12px; cursor:pointer; flex-shrink:0; padding:2px; ${item.photo ? '' : 'opacity:.5;'}">${item.photo ? `<img src="${item.photo}" style="width:24px; height:24px; object-fit:cover; border-radius:4px; display:block;">` : '📷'}</button>
                             </div>
                         </div>
                     </div>`;
