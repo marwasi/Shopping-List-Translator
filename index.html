@@ -143,7 +143,7 @@
         <div class="header-pair-code" style="text-align:left; flex-shrink:0; min-width:70px;">
             <div style="font-size:10px; font-weight:bold; opacity:.6; text-transform:uppercase; letter-spacing:.5px;">PAIR</div>
             <div style="font-size:11px; font-weight:bold; opacity:1; letter-spacing:.5px; font-family:monospace;"><span id="pairCodeLabel">——</span></div>
-            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.32</div>
+            <div style="font-size:9px; opacity:.4; font-family:monospace; margin-top:2px;">v3.33</div>
         </div>
         <div class="header-title-block">
             <h2 id="appTitle">Shopping Translator</h2>
@@ -829,12 +829,14 @@ async function callGroqViaProxy(messages, maxTokens = 20, retries = 2) {
             if (!res.ok) { 
                 const errBody = await res.text().catch(() => '(no body)');
                 console.error(`Proxy error (attempt ${attempt + 1}): ${res.status} — ${errBody}`);
+                window.lastProxyError = `HTTP ${res.status}: ${String(errBody).slice(0, 200)}`;
                 if (attempt < retries) { await new Promise(r => setTimeout(r, 1000)); continue; }
                 return null; 
             }
             return await res.json();
         } catch (e) { 
             console.error(`Proxy failed (attempt ${attempt + 1}):`, e.message);
+            window.lastProxyError = e.message;
             if (attempt < retries) { await new Promise(r => setTimeout(r, 1000)); continue; }
             return null; 
         }
@@ -872,7 +874,8 @@ Instructions:
         ? `I recognised "${itemText}" and placed it in "${category}".`
         : raw
             ? `I got "${raw}" back from the AI but it didn't match any of your aisles, so I put it in General.`
-            : `The AI didn't respond. The item went to General as a fallback.`;
+            : data ? `The AI replied with empty text (it may be using all its tokens thinking). Raw: ${JSON.stringify(data).slice(0, 300)}`
+            : `The AI didn't respond: ${window.lastProxyError || 'unknown'}. The item went to General.`;
     logAiEvent({
         item:     itemText,
         sent:     `Classify: "${itemText}"`,
@@ -1837,14 +1840,17 @@ function saveSplitInputs(id) {
                 const translated = data?.[0]?.[0]?.[0] ?? '[Error]';
                 const db_l1 = srcLang === langA ? rawText : translated;
                 const db_l2 = srcLang === langB ? rawText : translated;
-                // AI classifies every new item — no keyword lookup
-                const cat = await classifyItem(db_l1, 'new');
                 localEditingItems = localEditingItems.filter(i => i.id !== id);
-                col('activeList').add({
-                    l1: db_l1, l2: db_l2, qty, category: cat,
+                const newRef = col('activeList').doc();
+                newRef.set({
+                    l1: db_l1, l2: db_l2, qty, category: 'General',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     isEditing: false, checked: false, saved: false, addedBy, addedIcon
                 }).finally(() => processingIds.delete(id));
+                renderList();
+                classifyItem(db_l1, 'new').then(cat => {
+                    if (cat && cat !== 'General') newRef.update({ category: cat }).catch(() => {});
+                });
             })
             .catch(() => processingIds.delete(id));
     } else {
